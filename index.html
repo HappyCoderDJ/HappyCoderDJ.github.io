@@ -42,9 +42,13 @@
                     <button id="add-task-btn">추가</button>
                 </div>
                 <div class="task-actions">
-                    <button id="download-tasks">목록 다운로드</button>
-                    <input type="file" id="upload-tasks" accept=".json" style="display: none;">
-                    <button id="upload-tasks-btn">목록 업로드</button>
+                    <div class="task-actions-row">
+                        <button id="download-tasks">목록 다운로드</button>
+                        <input type="file" id="upload-tasks" accept=".json" style="display: none;">
+                        <button id="upload-tasks-btn">파일로 업로드</button>
+                    </div>
+                    <textarea id="json-input" placeholder="JSON 형식으로 목록 입력"></textarea>
+                    <button id="json-upload-btn">텍스트로 업로드</button>
                 </div>
             </section>
 

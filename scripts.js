@@ -256,4 +256,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 오늘 버튼 클릭 이벤트 리스너
     todayDateBtn.addEventListener('click', goToToday);
+
+    const jsonInput = document.getElementById('json-input');
+    const jsonUploadBtn = document.getElementById('json-upload-btn');
+
+    jsonUploadBtn.addEventListener('click', function() {
+        const jsonText = jsonInput.value.trim();
+        if (jsonText) {
+            try {
+                const parsedTasks = JSON.parse(jsonText);
+                dailyTasks = parsedTasks;
+                renderTasks(currentDate);
+                saveDailyTasks();
+                jsonInput.value = '';
+                alert('목록이 성공적으로 업로드되었습니다.');
+            } catch (error) {
+                console.error('Invalid JSON input:', error);
+                alert('올바르지 않은 JSON 형식입니다. 다시 확인해주세요.');
+            }
+        } else {
+            alert('JSON 텍스트를 입력해주세요.');
+        }
+    });
 });
