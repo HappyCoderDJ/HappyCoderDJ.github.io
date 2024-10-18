@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>인터넷 하지마</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>인터넷 하지마</h1>
+            <button id="theme-toggle" aria-label="테마 변경">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+        
+        <main>
+            <section class="card" id="dont-do">
+                <h2>금지 사항</h2>
+                <ul>
+                    <li>인터넷 서핑 금지! - 동영상, 유튜브, 커뮤니티</li>
+                </ul>
+            </section>
+
+            <section class="card" id="to-do">
+                <h2>필수 실행 사항</h2>
+                <ul>
+                    <li><input type="checkbox" id="email"> <label for="email">이메일 즉시 정리하라!</label></li>
+                    <li><input type="checkbox" id="task"> <label for="task">과제 지금 관리하라!</label></li>
+                    <li><input type="checkbox" id="daily-check"> <label for="daily-check">오늘 할 일 목록 당장 점검하라!</label></li>
+                    <li><input type="checkbox" id="reading"> <label for="reading">책 30분 이상 읽어라!</label></li>
+                    <li><input type="checkbox" id="study"> <label for="study">1시간 이상 집중 공부하라!</label></li>
+                    <li><input type="checkbox" id="diary"> <label for="diary">오늘의 일기 반드시 작성하라!</label></li>
+                </ul>
+            </section>
+
+            <section class="card" id="progress">
+                <h2>임무 완수율</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 0%;">0%</div>
+                </div>
+            </section>
+
+            <section class="card" id="motivation">
+                <h2>명심하라</h2>
+                <p id="motivational-quote">지금 행동하지 않으면 후회한다!</p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 인터넷 하지마. All rights reserved.</p>
+        </footer>
+    </div>
+    <script src="scripts.js"></script>
+</body>
+</html>
