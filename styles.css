@@ -134,3 +134,68 @@ body.dark-mode {
         padding: 15px;
     }
 }
+
+.add-task {
+    display: flex;
+    margin-top: 15px;
+}
+
+#new-task {
+    flex-grow: 1;
+    padding: 5px;
+    font-size: 16px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px 0 0 4px;
+}
+
+#add-task-btn {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+.task-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+#download-tasks, #upload-tasks-btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* 다크 모드에서의 입력 필드와 버튼 스타일 */
+body.dark-mode #new-task {
+    background-color: #333;
+    color: white;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode #add-task-btn,
+body.dark-mode #download-tasks,
+body.dark-mode #upload-tasks-btn {
+    background-color: var(--primary-color);
+}
+
+/* 반응형 디자인을 위한 미디어 쿼리 */
+@media (max-width: 600px) {
+    .add-task, .task-actions {
+        flex-direction: column;
+    }
+
+    #new-task, #add-task-btn, #download-tasks, #upload-tasks-btn {
+        width: 100%;
+        margin-bottom: 10px;
+        border-radius: 4px;
+    }
+}
