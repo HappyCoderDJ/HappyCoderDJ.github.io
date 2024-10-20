@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 날짜별 할 일 목록을 저장할 객체
     let dailyTasks = {};
 
-    // 현재 선택된 날짜
-    let currentDate = new Date().toISOString().split('T')[0];
+    // 현재 선택된 날짜 (서울 표준시 +9 기준)
+    let currentDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"})).toISOString().split('T')[0];
 
     // Theme toggle
     themeToggle.addEventListener('click', function() {
@@ -66,9 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         dailyTasks[date].forEach(task => {
             const li = document.createElement('li');
+            li.className = 'task-item';
             li.innerHTML = `
                 <input type="checkbox" id="${task.id}" ${task.checked ? 'checked' : ''}>
-                <label for="${task.id}">${task.text}</label>
+                <span class="task-text" data-id="${task.id}">${task.text}</span>
+                <input type="text" class="edit-task" data-id="${task.id}" value="${task.text}">
+                <button class="delete-task" data-id="${task.id}">×</button>
             `;
             taskList.appendChild(li);
         });
@@ -76,8 +79,8 @@ document.addEventListener('DOMContentLoaded', function() {
         updateProgress();
     }
 
-    // 새로운 할 일 추가
-    addTaskBtn.addEventListener('click', function() {
+    // 새로운 할 일 추가 함수
+    function addNewTask() {
         const text = newTaskInput.value.trim();
         if (text) {
             const newTask = {
@@ -92,6 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
             newTaskInput.value = '';
             renderTasks(currentDate);
             saveDailyTasks();
+        }
+    }
+
+    // 새로운 할 일 추가 (버튼 클릭)
+    addTaskBtn.addEventListener('click', addNewTask);
+
+    // 새로운 할 일 추가 (엔터 키 입력)
+    newTaskInput.addEventListener('keyup', function(event) {
+        if (event.key === 'Enter') {
+            addNewTask();
         }
     });
 
@@ -177,7 +190,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "즉시 행동은 즉시 이익이며, 더 많은 실천은 더 많은 이익이다.",
         "결단을 내리면 즉시 실천하라. 김은 새어나가기 마련이다. - 손자병법",
         "너는 머뭇거릴 수 있지만, 시간은 그렇지 않다. - 벤자민 프랭클린",
-        "지금 그것을 하지 않으면 언제 할 수 있는 날이 있을까. - 히레르",
+        "지금 그것을 하지 않으면 언제 할 수 있는 날이 있을까. - 히레",
         "행동하라! 무엇인가를 행하라! 하찮은 것이라도 상관없다. - 베르나르 베르베르",
         "말하고자 하는 바를 먼저 실행하라. 그런 다음 말하라. - 공자",
         "오래 미룰수록 시작하기가 어려워진다. - 나폴레온 힐",
@@ -247,9 +260,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // 오늘 버튼 요소 선택
     const todayDateBtn = document.getElementById('today-date');
 
-    // 오늘 날짜로 이동하는 함수
+    // 오늘 날짜로 이동하는 함수 (서울 표준시 +9 기준)
     function goToToday() {
-        currentDate = new Date().toISOString().split('T')[0];
+        currentDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"})).toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
     }
@@ -257,25 +270,54 @@ document.addEventListener('DOMContentLoaded', function() {
     // 오늘 버튼 클릭 이벤트 리스너
     todayDateBtn.addEventListener('click', goToToday);
 
-    const jsonInput = document.getElementById('json-input');
-    const jsonUploadBtn = document.getElementById('json-upload-btn');
+    // 할 일 수정 기능
+    taskList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('task-text')) {
+            const taskId = event.target.dataset.id;
+            const taskTextSpan = event.target;
+            const editInput = event.target.nextElementSibling;
+            
+            taskTextSpan.style.display = 'none';
+            editInput.style.display = 'inline-block';
+            editInput.focus();
+        }
+    });
 
-    jsonUploadBtn.addEventListener('click', function() {
-        const jsonText = jsonInput.value.trim();
-        if (jsonText) {
-            try {
-                const parsedTasks = JSON.parse(jsonText);
-                dailyTasks = parsedTasks;
-                renderTasks(currentDate);
-                saveDailyTasks();
-                jsonInput.value = '';
-                alert('목록이 성공적으로 업로드되었습니다.');
-            } catch (error) {
-                console.error('Invalid JSON input:', error);
-                alert('올바르지 않은 JSON 형식입니다. 다시 확인해주세요.');
+    taskList.addEventListener('keyup', function(event) {
+        if (event.target.classList.contains('edit-task') && event.key === 'Enter') {
+            const taskId = event.target.dataset.id;
+            const newText = event.target.value.trim();
+            const taskTextSpan = event.target.previousElementSibling;
+            
+            if (newText) {
+                const task = dailyTasks[currentDate].find(t => t.id === taskId);
+                if (task) {
+                    task.text = newText;
+                    taskTextSpan.textContent = newText;
+                    saveDailyTasks();
+                }
             }
-        } else {
-            alert('JSON 텍스트를 입력해주세요.');
+            
+            event.target.style.display = 'none';
+            taskTextSpan.style.display = 'inline';
+        }
+    });
+
+    taskList.addEventListener('blur', function(event) {
+        if (event.target.classList.contains('edit-task')) {
+            const taskTextSpan = event.target.previousElementSibling;
+            event.target.style.display = 'none';
+            taskTextSpan.style.display = 'inline';
+        }
+    }, true);
+
+    // 할 일 삭제 기능
+    taskList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-task')) {
+            const taskId = event.target.dataset.id;
+            dailyTasks[currentDate] = dailyTasks[currentDate].filter(task => task.id !== taskId);
+            renderTasks(currentDate);
+            saveDailyTasks();
         }
     });
 });
