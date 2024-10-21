@@ -203,12 +203,26 @@ body.dark-mode #upload-tasks-btn {
 .task-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
+    cursor: move;
+    background-color: var(--card-background);
+    padding: 5px 8px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.task-item:hover {
+    background-color: var(--hover-color);
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+    background-color: var(--primary-color);
 }
 
 .task-text {
     flex-grow: 1;
-    margin-left: 10px;
+    margin-left: 5px;
     cursor: pointer;
 }
 
@@ -234,12 +248,12 @@ body.dark-mode #upload-tasks-btn {
     background: none;
     border: none;
     color: var(--text-color);
-    font-size: 18px;
+    font-size: 16px;
     cursor: pointer;
     opacity: 0.6;
     transition: opacity 0.3s ease;
-    padding: 5px;
-    margin-left: 5px;
+    padding: 2px 5px;
+    margin-left: 3px;
 }
 
 .delete-task:hover {
@@ -255,4 +269,9 @@ body.dark-mode .edit-task input {
 
 body.dark-mode .delete-task {
     color: var(--text-color);
+}
+
+.task-text.checked {
+    text-decoration: line-through;
+    color: #888;
 }

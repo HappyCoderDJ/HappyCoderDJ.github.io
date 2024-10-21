@@ -64,19 +64,37 @@ document.addEventListener('DOMContentLoaded', function() {
             ];
         }
 
-        dailyTasks[date].forEach(task => {
-            const li = document.createElement('li');
-            li.className = 'task-item';
-            li.innerHTML = `
-                <input type="checkbox" id="${task.id}" ${task.checked ? 'checked' : ''}>
-                <span class="task-text" data-id="${task.id}">${task.text}</span>
-                <input type="text" class="edit-task" data-id="${task.id}" value="${task.text}">
-                <button class="delete-task" data-id="${task.id}">×</button>
-            `;
+        // 체크된 항목과 체크되지 않은 항목을 분리
+        const checkedTasks = dailyTasks[date].filter(task => task.checked);
+        const uncheckedTasks = dailyTasks[date].filter(task => !task.checked);
+
+        // 체크된 항목 렌더링
+        checkedTasks.forEach(task => {
+            const li = createTaskElement(task, false);
+            taskList.appendChild(li);
+        });
+
+        // 체크되지 않은 항목 렌더링
+        uncheckedTasks.forEach(task => {
+            const li = createTaskElement(task, true);
             taskList.appendChild(li);
         });
 
         updateProgress();
+    }
+
+    function createTaskElement(task, draggable) {
+        const li = document.createElement('li');
+        li.className = 'task-item';
+        li.draggable = draggable;
+        li.dataset.id = task.id;
+        li.innerHTML = `
+            <input type="checkbox" id="${task.id}" ${task.checked ? 'checked' : ''}>
+            <span class="task-text ${task.checked ? 'checked' : ''}" data-id="${task.id}">${task.text}</span>
+            <input type="text" class="edit-task" data-id="${task.id}" value="${task.text}">
+            <button class="delete-task" data-id="${task.id}">×</button>
+        `;
+        return li;
     }
 
     // 새로운 할 일 추가 함수
@@ -177,14 +195,77 @@ document.addEventListener('DOMContentLoaded', function() {
             const task = dailyTasks[currentDate].find(t => t.id === taskId);
             if (task) {
                 task.checked = event.target.checked;
-                updateProgress();
+                renderTasks(currentDate);
             }
         }
     });
 
+    // 드래그 앤 드롭 기능 수정
+    let draggedItem = null;
+
+    taskList.addEventListener('dragstart', function(e) {
+        if (e.target.draggable) {
+            draggedItem = e.target;
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', draggedItem.innerHTML);
+            draggedItem.classList.add('dragging');
+        }
+    });
+
+    taskList.addEventListener('dragend', function(e) {
+        if (draggedItem) {
+            draggedItem.classList.remove('dragging');
+            draggedItem = null;
+        }
+    });
+
+    taskList.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        if (draggedItem) {
+            const afterElement = getDragAfterElement(taskList, e.clientY);
+            if (afterElement == null || !afterElement.draggable) {
+                taskList.appendChild(draggedItem);
+            } else {
+                taskList.insertBefore(draggedItem, afterElement);
+            }
+        }
+    });
+
+    taskList.addEventListener('dragenter', function(e) {
+        e.preventDefault();
+    });
+
+    taskList.addEventListener('drop', function(e) {
+        e.preventDefault();
+        updateTaskOrder();
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.task-item[draggable="true"]:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    function updateTaskOrder() {
+        const newOrder = Array.from(taskList.children).map(li => {
+            const taskId = li.dataset.id;
+            return dailyTasks[currentDate].find(task => task.id === taskId);
+        });
+        dailyTasks[currentDate] = newOrder;
+        saveDailyTasks();
+    }
+
     // Motivational quotes
     const quotes = [
-        // 일을 미루지 않고 즉시 행하도록 하는 명언
+        // 일을 미루지 않고 즉시 행하록 하는 명언
         "오늘 할 수 있는 일을 내일로 미루지 마라. - 벤자민 프랭클린",
         "지금 이 순간에 그대의 행동을 다스려라. 순간의 일이 그대의 먼 장래를 결정한다. - 릴케",
         "즉시 행동은 즉시 이익이며, 더 많은 실천은 더 많은 이익이다.",
