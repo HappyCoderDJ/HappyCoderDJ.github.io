@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // 날짜별 할 일 목록을 저장할 객체
     let dailyTasks = {};
 
-    // 현재 선택된 날짜 (서울 표준시 +9 기준)
-    let currentDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"})).toISOString().split('T')[0];
+    // 현재 선택된 날짜 (서울 표준시 기준)
+    let currentDate = new Date(new Date().getTime() + (9 * 60 * 60 * 1000)).toISOString().split('T')[0];
 
     // Theme toggle
     themeToggle.addEventListener('click', function() {
@@ -260,9 +260,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 오늘 버튼 요소 선택
     const todayDateBtn = document.getElementById('today-date');
 
-    // 오늘 날짜로 이동하는 함수 (서울 표준시 +9 기준)
+    // 오늘 날짜로 이동하는 함수 (서울 표준시 기준)
     function goToToday() {
-        currentDate = new Date(new Date().toLocaleString("en-US", {timeZone: "Asia/Seoul"})).toISOString().split('T')[0];
+        const now = new Date(new Date().getTime() + (9 * 60 * 60 * 1000));
+        currentDate = now.toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
     }
