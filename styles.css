@@ -162,41 +162,69 @@ body.dark-mode {
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
+    flex-wrap: wrap; /* 버튼들이 한 줄에 들어가지 않을 때 줄바꿈 */
+    gap: 10px; /* 버튼 사이의 간격 */
 }
 
-#download-tasks, #upload-tasks-btn {
+#download-tasks, #upload-tasks-btn, #copy-url-btn {
     padding: 5px 10px;
     font-size: 14px;
-    background-color: var(--secondary-color);
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* 다크 모드에서의 입력 필드와 버튼 스타일 */
-body.dark-mode #new-task {
-    background-color: #333;
-    color: white;
-    border-color: var(--primary-color);
+#download-tasks, #upload-tasks-btn {
+    background-color: var(--secondary-color);
 }
 
-body.dark-mode #add-task-btn,
+#copy-url-btn {
+    background-color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#copy-url-btn::before {
+    content: '\f0c1'; /* Font Awesome link icon */
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 5px;
+}
+
+#download-tasks:hover, #upload-tasks-btn:hover, #copy-url-btn:hover {
+    transform: translateY(-2px);
+}
+
+#copy-url-btn:hover {
+    background-color: #2980b9; /* Darker shade of primary color */
+}
+
+/* 다크 모드에서의 버튼 스타일 */
 body.dark-mode #download-tasks,
 body.dark-mode #upload-tasks-btn {
     background-color: var(--primary-color);
 }
 
+body.dark-mode #copy-url-btn {
+    background-color: #3a8fd8; /* Lighter shade of primary color for dark mode */
+}
+
+body.dark-mode #copy-url-btn:hover {
+    background-color: #58a6ff; /* Even lighter shade for hover in dark mode */
+}
+
 /* 반응형 디자인을 위한 미디어 쿼리 */
 @media (max-width: 600px) {
-    .add-task, .task-actions {
+    .task-actions {
         flex-direction: column;
     }
 
-    #new-task, #add-task-btn, #download-tasks, #upload-tasks-btn {
+    #download-tasks, #upload-tasks-btn, #copy-url-btn {
         width: 100%;
         margin-bottom: 10px;
-        border-radius: 4px;
     }
 }
 
@@ -208,7 +236,9 @@ body.dark-mode #upload-tasks-btn {
     background-color: var(--card-background);
     padding: 5px 8px;
     border-radius: 4px;
-    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .task-item:hover {
@@ -218,6 +248,11 @@ body.dark-mode #upload-tasks-btn {
 .task-item.dragging {
     opacity: 0.5;
     background-color: var(--primary-color);
+    z-index: 2;
+}
+
+.task-item.moving {
+    transition: transform 0.3s ease;
 }
 
 .task-text {

@@ -101,6 +101,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function addNewTask() {
         const text = newTaskInput.value.trim();
         if (text) {
+            // 현재 날짜의 할 일 목록 가져오기
+            const currentTasks = dailyTasks[currentDate] || [];
+            
+            // 중복 검사 (대소문자 구분 없이)
+            if (currentTasks.some(task => task.text.toLowerCase() === text.toLowerCase())) {
+                alert('이미 존재하는 할 일입니다.');
+                return;
+            }
+
             const newTask = {
                 id: 'task-' + Date.now(),
                 text: text,
@@ -202,6 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 드래그 앤 드롭 기능 수정
     let draggedItem = null;
+    let placeholder = null;
 
     taskList.addEventListener('dragstart', function(e) {
         if (e.target.draggable) {
@@ -209,6 +219,12 @@ document.addEventListener('DOMContentLoaded', function() {
             e.dataTransfer.effectAllowed = 'move';
             e.dataTransfer.setData('text/html', draggedItem.innerHTML);
             draggedItem.classList.add('dragging');
+            
+            // 플레이스홀더 생성
+            placeholder = document.createElement('li');
+            placeholder.classList.add('task-item', 'placeholder');
+            placeholder.style.height = `${draggedItem.offsetHeight}px`;
+            draggedItem.parentNode.insertBefore(placeholder, draggedItem.nextSibling);
         }
     });
 
@@ -216,17 +232,22 @@ document.addEventListener('DOMContentLoaded', function() {
         if (draggedItem) {
             draggedItem.classList.remove('dragging');
             draggedItem = null;
+            if (placeholder && placeholder.parentNode) {
+                placeholder.parentNode.removeChild(placeholder);
+            }
+            placeholder = null;
+            updateTaskOrder();
         }
     });
 
     taskList.addEventListener('dragover', function(e) {
         e.preventDefault();
-        if (draggedItem) {
+        if (draggedItem && placeholder) {
             const afterElement = getDragAfterElement(taskList, e.clientY);
-            if (afterElement == null || !afterElement.draggable) {
-                taskList.appendChild(draggedItem);
+            if (afterElement == null) {
+                taskList.appendChild(placeholder);
             } else {
-                taskList.insertBefore(draggedItem, afterElement);
+                taskList.insertBefore(placeholder, afterElement);
             }
         }
     });
@@ -237,11 +258,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     taskList.addEventListener('drop', function(e) {
         e.preventDefault();
-        updateTaskOrder();
+        if (draggedItem && placeholder) {
+            taskList.insertBefore(draggedItem, placeholder);
+            draggedItem.classList.add('moving');
+            setTimeout(() => {
+                draggedItem.classList.remove('moving');
+            }, 300);
+        }
     });
 
     function getDragAfterElement(container, y) {
-        const draggableElements = [...container.querySelectorAll('.task-item[draggable="true"]:not(.dragging)')];
+        const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging):not(.placeholder)')];
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
@@ -255,10 +282,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateTaskOrder() {
-        const newOrder = Array.from(taskList.children).map(li => {
-            const taskId = li.dataset.id;
-            return dailyTasks[currentDate].find(task => task.id === taskId);
-        });
+        const newOrder = Array.from(taskList.children)
+            .filter(li => !li.classList.contains('placeholder'))
+            .map(li => {
+                const taskId = li.dataset.id;
+                return dailyTasks[currentDate].find(task => task.id === taskId);
+            });
         dailyTasks[currentDate] = newOrder;
         saveDailyTasks();
     }
@@ -277,10 +306,10 @@ document.addEventListener('DOMContentLoaded', function() {
         "오래 미룰수록 시작하기가 어려워진다. - 나폴레온 힐",
         "지금 즉시 행동하라. 그러나 약간이라도 지체하면, 세상의 차가운 공기가 너의 마음을 금방 식혀 놓을 것이다.",
         // 어려운 상황에서도 헤쳐나가라는 명언
-        "넘어지지 않고 힘들어하는 것이 중요한 게 아니라, 넘어진 뒤에 일어서는 것이 중요해. - 반자메릭",
+        "넘어지지 않고 힘들어하는 것이 요한 게 아니라, 넘어진 뒤에 일어서는 것이 중요해. - 반자메릭",
         "성공은 가장 어려운 시간에 일어납니다. - 피터 F. 드러커",
         "더 큰 도전을 이겨낼 때마다 더 큰 성취가 기다리고 있어. - 스티브 마블리",
-        "어려운 시기일수록 용기를 가져야 합니다. - 윈스턴 처칠",
+        "어려운 시기수록 용기를 가져야 합니다. - 윈스턴 처칠",
         "고난이 클수록 더 큰 영광이 다가온다. - 키케로",
         "인생의 가장 큰 영광은 결코 넘어지지 않는 데 있는 것이 아니라 넘어질 때마다 일어서는 데 있다. - 넬슨 만델라",
         "고통은 인내를 낳고 인내는 시련을 이겨내는 끈기를 낳고 끈기는 희망을 낳는다. - 성경",
@@ -288,7 +317,7 @@ document.addEventListener('DOMContentLoaded', function() {
         "세상은 고통으로 가득하지만 그것을 극복하는 사람들로도 가득하다 - 헬렌 켈러",
         "용기있는 자로 살아라. 운이 따라주지 않는다면 용기 있는 가슴으로 불행에 맞서라. - 키케로",
         // 행동의 중요성을 강조하는 명언
-        "행동 없는 식견은 백일몽이요, 식견 없는 행동은 악몽이다. - 일본 속담",
+        "행동 없는 식견은 백일몽이요, 식견  행동은 악몽이다. - 일본 속담",
         "행동이 항상 행복을 가져오는 것은 아니다. 그러나 행동 없이는 행복도 없다. - 벤자민 디스렐리",
         "말보다는 행동이다. 행동 없이 이룰 수 있는 일은 없다. - 나폴레온 힐",
         "불안이나 두려움을 없애주는 것이 행동이다.",
@@ -322,6 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 초기화 함수
     function initialize() {
         loadDailyTasks();
+        loadTasksFromUrl(); // URL에서 할 일 목록 로드
         renderTasks(currentDate);
         currentDateSpan.textContent = formatDate(currentDate);
 
@@ -402,4 +432,53 @@ document.addEventListener('DOMContentLoaded', function() {
             saveDailyTasks();
         }
     });
+
+    // URL 복사 버튼 이벤트 리스너
+    document.getElementById('copy-url-btn').addEventListener('click', function() {
+        const tasksForDate = dailyTasks[currentDate] || [];
+        const encodedTasks = encodeURIComponent(JSON.stringify(tasksForDate));
+        const url = `${window.location.origin}${window.location.pathname}#${currentDate}:${encodedTasks}`;
+        
+        navigator.clipboard.writeText(url).then(() => {
+            alert('URL이 클립보드에 복사되었습니다.');
+        }).catch(err => {
+            console.error('URL 복사 실패:', err);
+            alert('URL 복사에 실패했습니다.');
+        });
+    });
+
+    // URL에서 할 일 목록 읽기
+    function loadTasksFromUrl() {
+        const hash = window.location.hash.slice(1);
+        if (hash) {
+            const [date, encodedTasks] = hash.split(':');
+            if (date && encodedTasks) {
+                try {
+                    const decodedTasks = JSON.parse(decodeURIComponent(encodedTasks));
+                    
+                    // 기존 할 일 목록 가져오기
+                    const existingTasks = dailyTasks[date] || [];
+                    
+                    // 중복 제거 및 새 할 일 추가
+                    decodedTasks.forEach(newTask => {
+                        if (!existingTasks.some(existingTask => existingTask.text === newTask.text)) {
+                            existingTasks.push(newTask);
+                        }
+                    });
+                    
+                    dailyTasks[date] = existingTasks;
+                    currentDate = date;
+                    renderTasks(currentDate);
+                    saveDailyTasks();
+                    currentDateSpan.textContent = formatDate(currentDate);
+                    
+                    // URL 해시 제거 및 리디렉션
+                    window.location.hash = '';
+                    history.replaceState(null, '', window.location.pathname);
+                } catch (error) {
+                    console.error('URL에서 할 일 목록 로드 실패:', error);
+                }
+            }
+        }
+    }
 });
