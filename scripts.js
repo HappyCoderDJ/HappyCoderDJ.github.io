@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!dailyTasks[date]) {
             // 새 날짜의 경우 기본 할 일 목록 생성
             dailyTasks[date] = [
-                { id: 'email', text: '이메일 즉시 정리하라!', checked: false },
+                { id: 'email', text: '이메일 플래그 정리하라!', checked: false },
                 { id: 'task', text: '과제 지금 관리하라!', checked: false },
                 { id: 'daily-check', text: '오늘 할 일 목록 당장 점검하라!', checked: false },
                 { id: 'reading', text: '책 30분 이상 읽어라!', checked: false },
