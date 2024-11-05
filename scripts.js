@@ -363,6 +363,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // "행동으로 옮겨진 지식만이 마음에 남는 법이다.",
         // "민첩하고 기운차게 행동하라. '그렇지만' 이라든지 '만약' 이라든지 '왜' 라는 말들을 앞세우지 말라. - 나폴레옹"
         "지금 그거 15분이면 한다.",
+        "하루 물림이 열흘 간다. -한국 속담"
     ];
 
     function updateQuote() {
