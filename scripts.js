@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!dailyTasks[date]) {
             // 새 날짜의 경우 기본 할 일 목록 생성
             dailyTasks[date] = [
-                { id: 'email', text: '이메일 플래그 정리하라!', checked: false },
+                { id: 'email', text: '이메일 플래그 지금 정리하라!', checked: false },
                 { id: 'task', text: '과제 지금 관리하라!', checked: false },
                 { id: 'daily-check', text: '오늘 할 일 목록 당장 점검하라!', checked: false },
                 { id: 'reading', text: '책 30분 이상 읽어라!', checked: false },
@@ -152,12 +152,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 할 일 목록 다운로드
     downloadTasksBtn.addEventListener('click', function() {
-        const tasksJson = JSON.stringify(dailyTasks);
+        // 현재 날짜의 할 일 목록만 가져오기
+        const currentTasks = dailyTasks[currentDate] || [];
+        const tasksJson = JSON.stringify(currentTasks);
+        
         const blob = new Blob([tasksJson], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'daily_tasks.json';
+        // 파일명에 날짜 포함
+        a.download = `tasks_${currentDate}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -175,9 +179,40 @@ document.addEventListener('DOMContentLoaded', function() {
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    dailyTasks = JSON.parse(e.target.result);
+                    const uploadedTasks = JSON.parse(e.target.result);
+                    const existingTasks = dailyTasks[currentDate] || [];
+                    
+                    // 중복 제거하면서 새로운 할 일 추가
+                    uploadedTasks.forEach(newTask => {
+                        // 텍스트가 동일한 기존 할 일 찾기
+                        const existingTask = existingTasks.find(existingTask => 
+                            existingTask.text.toLowerCase() === newTask.text.toLowerCase()
+                        );
+
+                        if (existingTask) {
+                            // 기존 할 일이 있는 경우, checked 상태만 업데이트
+                            // 둘 중 하나라도 완료 상태면 완료로 표시
+                            existingTask.checked = existingTask.checked || newTask.checked;
+                        } else {
+                            // 새로운 할 일 추가
+                            existingTasks.push({
+                                text: newTask.text,
+                                checked: newTask.checked,
+                                id: 'task-' + Date.now() + Math.random().toString(36).substr(2, 5)
+                            });
+                        }
+                    });
+                    
+                    // 현재 날짜의 할 일 목록 업데이트
+                    dailyTasks[currentDate] = existingTasks;
+                    
                     renderTasks(currentDate);
                     saveDailyTasks();
+                    
+                    // 파일 입력 초기화
+                    event.target.value = '';
+                    
+                    alert('할 일 목록이 성공적으로 업로드되었습니다.');
                 } catch (error) {
                     console.error('Invalid JSON file:', error);
                     alert('올바르지 않은 파일 형식입니다.');
@@ -321,14 +356,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // "행동이 항상 행복을 가져오는 것은 아니다. 그러나 행동 없이는 행복도 없다. - 벤자민 디스렐리",
         // "말보다는 행동이다. 행동 없이 이룰 수 있는 일은 없다. - 나폴레온 힐",
         // "불안이나 두려움을 없애주는 것이 행동이다.",
-        // "말보다 행동이 더 설득력을 갖는다.",
-        // "행동은 당신의 인생을 부각시키고, 행동은 세계를 형성한다.... 행동은 말보다 그 소리가 크다. - 탈무드",
+        // "보다 행동이 더 설득력을 갖는다.",
+        // "행동은 당신의 인생을 부각시키고, 행동은 세계를 형성한다.... 행동은 말보��� 그 소리가 크다. - 탈무드",
         // "행동은 말보다 진실을 잘 나타나게 마련이다. - 디오도어 루빈",
         // "행동력을 착실하게 향상시키려면 당신이 해야할 일을 이 순간부터 주저 말고 시작하는 것이며, 전력을 다하여 부딪혀 나가는 일이다. - 하라잇뻬이",
         // "행동으로 옮겨진 지식만이 마음에 남는 법이다.",
-        // "민첩하고 기운차게 행동하라. '그렇지만' 이라든지 '만약' 이라든지 '왜' 라는 말들을 앞세우지 말라. - 나폴레옹",
-        "지금 그거 15분이면 한다.",
-
+        // "민첩하고 기운차게 행동하라. '그렇지만' 이라든지 '만약' 이라든지 '왜' 라는 말들을 앞세우지 말라. - 나폴레옹"
+        "지금 그거 15분이 한다.",
     ];
 
     function updateQuote() {
