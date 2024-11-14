@@ -11,9 +11,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevDateBtn = document.getElementById('prev-date');
     const nextDateBtn = document.getElementById('next-date');
     const currentDateSpan = document.getElementById('current-date');
+    const startTimeInput = document.getElementById('start-time');
+    const endTimeInput = document.getElementById('end-time');
+    const wasteCategorySelect = document.getElementById('waste-category');
+    const addWastedTimeBtn = document.getElementById('add-wasted-time');
+    const wastedTimeList = document.getElementById('wasted-time-list');
+    const totalWastedTimeSpan = document.getElementById('total-wasted-time');
 
     // 날짜별 할 일 목록을 저장할 객체
     let dailyTasks = {};
+    let dailyWastedTime = {};
 
     // 현재 선택된 날짜 (서울 표준시 기준)
     let currentDate = new Date(new Date().getTime() + (9 * 60 * 60 * 1000)).toISOString().split('T')[0];
@@ -47,6 +54,101 @@ document.addEventListener('DOMContentLoaded', function() {
             dailyTasks = JSON.parse(savedTasks);
         }
     }
+
+    // 버린 시간 저장 함수
+    function saveWastedTime() {
+        localStorage.setItem('dailyWastedTime', JSON.stringify(dailyWastedTime));
+    }
+
+    // 버린 시간 불러오기 함수
+    function loadWastedTime() {
+        const savedWastedTime = localStorage.getItem('dailyWastedTime');
+        if (savedWastedTime) {
+            dailyWastedTime = JSON.parse(savedWastedTime);
+        }
+    }
+
+    // 시간 차이 계산 함수 (분 단위)
+    function calculateTimeDifference(start, end) {
+        const startDate = new Date(`2000-01-01T${start}`);
+        const endDate = new Date(`2000-01-01T${end}`);
+        return Math.round((endDate - startDate) / (1000 * 60));
+    }
+
+    // 버린 시간 추가 함수
+    function addWastedTime() {
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        const category = wasteCategorySelect.value;
+
+        if (!startTime || !endTime) {
+            alert('시작 시간과 종료 시간을 모두 입력해주세요.');
+            return;
+        }
+
+        const wastedMinutes = calculateTimeDifference(startTime, endTime);
+        if (wastedMinutes <= 0) {
+            alert('종료 시간은 시작 시간보다 늦어야 합니다.');
+            return;
+        }
+
+        if (!dailyWastedTime[currentDate]) {
+            dailyWastedTime[currentDate] = [];
+        }
+
+        const wastedTimeEntry = {
+            id: Date.now(),
+            startTime,
+            endTime,
+            minutes: wastedMinutes,
+            category
+        };
+
+        dailyWastedTime[currentDate].push(wastedTimeEntry);
+        renderWastedTime(currentDate);
+        saveWastedTime();
+
+        // 입력 필드 초기화
+        startTimeInput.value = '';
+        endTimeInput.value = '';
+    }
+
+    // 버린 시간 렌더링 함수
+    function renderWastedTime(date) {
+        const wastedTimes = dailyWastedTime[date] || [];
+        wastedTimeList.innerHTML = '';
+        let totalMinutes = 0;
+
+        wastedTimes.forEach(entry => {
+            const li = document.createElement('li');
+            li.className = 'wasted-time-item';
+            li.innerHTML = `
+                <span>${entry.startTime} - ${entry.endTime}</span>
+                <span>${entry.category}</span>
+                <span>${entry.minutes}분</span>
+                <button class="delete-wasted-time" data-id="${entry.id}">×</button>
+            `;
+            wastedTimeList.appendChild(li);
+            totalMinutes += entry.minutes;
+        });
+
+        totalWastedTimeSpan.textContent = `${totalMinutes}분`;
+    }
+
+    // 버린 시간 삭제 이벤트 리스너
+    wastedTimeList.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-wasted-time')) {
+            const id = parseInt(event.target.dataset.id);
+            dailyWastedTime[currentDate] = dailyWastedTime[currentDate].filter(
+                entry => entry.id !== id
+            );
+            renderWastedTime(currentDate);
+            saveWastedTime();
+        }
+    });
+
+    // 버린 시간 추가 버튼 이벤트 리스너
+    addWastedTimeBtn.addEventListener('click', addWastedTime);
 
     // 특정 날짜의 할 일 목록 렌더링
     function renderTasks(date) {
@@ -142,6 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentDate = date.toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
+        renderWastedTime(currentDate);
     }
 
     // 날짜 포맷 함수
@@ -356,14 +459,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // "행동이 항상 행복을 가져오는 것은 아니다. 그러나 행동 없이는 행복도 없다. - 벤자민 디스렐리",
         // "말보다는 행동이다. 행동 없이 이룰 수 있는 일은 없다. - 나폴레온 힐",
         // "불안이나 두려움을 없애주는 것이 행동이다.",
-        // "보다 행동이 더 설득력을 갖는다.",
-        // "행동은 당신의 인생을 부각시키고, 행동은 세계를 형성한다.... 행동은 말보��� 그 소리가 크다. - 탈무드",
+        // "���다 행동이 더 설득력을 갖는다.",
+        // "행동은 당신의 인생을 부각시키고, 행동은 세계를 형성한다.... 행동은 말보 그 소리가 크다. - 탈무드",
         // "행동은 말보다 진실을 잘 나타나게 마련이다. - 디오도어 루빈",
         // "행동력을 착실하게 향상시키려면 당신이 해야할 일을 이 순간부터 주저 말고 시작하는 것이며, 전력을 다하여 부딪혀 나가는 일이다. - 하라잇뻬이",
         // "행동으로 옮겨진 지식만이 마음에 남는 법이다.",
         // "민첩하고 기운차게 행동하라. '그렇지만' 이라든지 '만약' 이라든지 '왜' 라는 말들을 앞세우지 말라. - 나폴레옹"
-        "지금 그거 15분이면 한다.",
-        "하루 물림이 열흘 간다. -한국 속담"
+        "지금 그거 15분이 한다.",
     ];
 
     function updateQuote() {
@@ -388,8 +490,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // 초기화 함수
     function initialize() {
         loadDailyTasks();
+        loadWastedTime();
         loadTasksFromUrl(); // URL에서 할 일 목록 로드
         renderTasks(currentDate);
+        renderWastedTime(currentDate);
         currentDateSpan.textContent = formatDate(currentDate);
 
         // 이전 날짜 버튼
@@ -404,6 +508,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 페이지 로드 시 현재 날짜 표시
     currentDateSpan.textContent = formatDate(currentDate);
     renderTasks(currentDate);
+    renderWastedTime(currentDate);
 
     // 오늘 버튼 요소 선택
     const todayDateBtn = document.getElementById('today-date');
@@ -414,6 +519,7 @@ document.addEventListener('DOMContentLoaded', function() {
         currentDate = now.toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
+        renderWastedTime(currentDate);
     }
 
     // 오늘 버튼 클릭 이벤트 리스너
@@ -506,6 +612,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     dailyTasks[date] = existingTasks;
                     currentDate = date;
                     renderTasks(currentDate);
+                    renderWastedTime(currentDate);
                     saveDailyTasks();
                     currentDateSpan.textContent = formatDate(currentDate);
                     
@@ -518,4 +625,60 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
+
+    // 시간 입력 필드들에 대한 키보드 이벤트 처리
+    [startTimeInput, endTimeInput].forEach(timeInput => {
+        timeInput.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault(); // 기본 동작 방지
+                
+                const currentValue = this.value;
+                if (!currentValue) {
+                    // 값이 없을 경우 기본값 설정 (09:00)
+                    this.value = '09:00';
+                    return;
+                }
+
+                const [hours, minutes] = currentValue.split(':').map(Number);
+                let newHours = hours;
+                let newMinutes = minutes;
+
+                if (e.key === 'ArrowUp') {
+                    // 시간 증가
+                    if (e.ctrlKey) {
+                        // Ctrl + 위 화살표: 시간 증가
+                        newHours = (hours + 1) % 24;
+                    } else {
+                        // 위 화살표만: 15분 증가
+                        newMinutes += 15;
+                        if (newMinutes >= 60) {
+                            newMinutes = 0;
+                            newHours = (hours + 1) % 24;
+                        }
+                    }
+                } else if (e.key === 'ArrowDown') {
+                    // 시간 감소
+                    if (e.ctrlKey) {
+                        // Ctrl + 아래 화살표: 시간 감소
+                        newHours = (hours - 1 + 24) % 24;
+                    } else {
+                        // 아래 화살표만: 15분 감소
+                        newMinutes -= 15;
+                        if (newMinutes < 0) {
+                            newMinutes = 45;
+                            newHours = (hours - 1 + 24) % 24;
+                        }
+                    }
+                }
+
+                // 새로운 시간을 HH:MM 형식으로 포맷팅
+                this.value = `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+            }
+        });
+
+        // 시간 입력 필드 포커스 시 자동 선택
+        timeInput.addEventListener('focus', function() {
+            this.select();
+        });
+    });
 });
