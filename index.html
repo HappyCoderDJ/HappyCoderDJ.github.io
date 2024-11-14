@@ -32,6 +32,29 @@
                 </ul>
             </section>
 
+            <section class="card">
+                <h2>오늘 하루 버린 시간</h2>
+                <div class="wasted-time-container">
+                    <div class="wasted-time-input">
+                        <input type="time" id="start-time" placeholder="시작 시간">
+                        <input type="time" id="end-time" placeholder="종료 시간">
+                        <select id="waste-category">
+                            <option value="youtube">유튜브</option>
+                            <option value="ott">OTT</option>
+                            <option value="community">커뮤니티</option>
+                            <option value="other">기타</option>
+                        </select>
+                        <button id="add-wasted-time">추가</button>
+                    </div>
+                    <div class="wasted-time-list">
+                        <ul id="wasted-time-list"></ul>
+                    </div>
+                    <div class="wasted-time-summary">
+                        <p>총 버린 시간: <span id="total-wasted-time">0분</span></p>
+                    </div>
+                </div>
+            </section>
+
             <section class="card" id="to-do">
                 <h2>오늘의 할 일</h2>
                 <ul id="task-list">
@@ -45,7 +68,6 @@
                     <button id="download-tasks">목록 다운로드</button>
                     <input type="file" id="upload-tasks" accept=".json" style="display: none;">
                     <button id="upload-tasks-btn">목록 업로드</button>
-                    <!-- task-actions div 내부에 다음 버튼을 추가합니다 -->
                     <button id="copy-url-btn">URL 복사하기</button>
                 </div>
             </section>
