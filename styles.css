@@ -47,16 +47,16 @@ h2 {
 
 .card {
     background-color: var(--card-background);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 20px;
-    margin-bottom: 20px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 24px;
+    margin-bottom: 24px;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
 .card:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
 }
 
 ul {
@@ -69,25 +69,29 @@ li {
 }
 
 input[type="checkbox"] {
-    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    cursor: pointer;
 }
 
 .progress-bar {
-    background-color: #e0e0e0;
+    background-color: var(--hover-color);
     border-radius: 20px;
-    height: 20px;
+    height: 24px;
     width: 100%;
     overflow: hidden;
+    border: 2px solid var(--hover-color);
 }
 
 .progress {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     height: 100%;
-    width: 0;
     transition: width 0.5s ease-in-out;
     text-align: center;
     color: white;
     line-height: 20px;
+    font-weight: bold;
 }
 
 #theme-toggle {
@@ -134,39 +138,26 @@ body.dark-mode {
     }
 
     .card {
-        padding: 15px;
+        padding: 16px;
+        border-radius: 16px;
     }
 }
 
 .add-task {
     display: flex;
+    gap: 12px;
     margin-top: 15px;
 }
 
 #new-task {
     flex-grow: 1;
-    padding: 5px;
-    font-size: 16px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px 0 0 4px;
-}
-
-#add-task-btn {
-    padding: 5px 10px;
-    font-size: 16px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
+    min-width: 200px;
 }
 
 .task-actions {
     display: flex;
-    justify-content: space-between;
-    margin-top: 15px;
-    flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
+    margin-top: 20px;
 }
 
 #download-tasks, #upload-tasks-btn, #copy-url-btn {
@@ -223,37 +214,33 @@ body.dark-mode #copy-url-btn:hover {
         flex-direction: column;
     }
 
-    #download-tasks, #upload-tasks-btn, #copy-url-btn {
+    .task-actions button {
         width: 100%;
-        margin-bottom: 10px;
+    }
+
+    #date-navigation {
+        flex-wrap: wrap;
+    }
+
+    #date-navigation button {
+        flex: 1;
     }
 }
 
 .task-item {
     display: flex;
     align-items: center;
-    margin-bottom: 5px;
-    cursor: move;
+    padding: 12px 16px;
+    margin-bottom: 8px;
     background-color: var(--card-background);
-    padding: 5px 8px;
-    border-radius: 4px;
-    transition: transform 0.3s ease, background-color 0.3s ease;
-    position: relative;
-    z-index: 1;
+    border: 2px solid var(--hover-color);
+    border-radius: 20px;
+    transition: all 0.3s ease;
 }
 
 .task-item:hover {
-    background-color: var(--hover-color);
-}
-
-.task-item.dragging {
-    opacity: 0.5;
-    background-color: var(--primary-color);
-    z-index: 2;
-}
-
-.task-item.moving {
-    transition: transform 0.3s ease;
+    border-color: var(--primary-color);
+    transform: translateX(4px);
 }
 
 .task-text {
@@ -330,10 +317,9 @@ body.dark-mode .delete-task {
 .pomodoro-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     margin-bottom: 15px;
-    flex-wrap: nowrap;
-    width: 100%;
+    flex-wrap: wrap;
 }
 
 .focus-title-container {
@@ -350,11 +336,14 @@ body.dark-mode .delete-task {
 }
 
 .focus-title-container input {
-    flex: 1;
-    min-width: 0;
-    padding: 5px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
+    width: 200px;
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    background: transparent;
+    color: var(--text-color);
+    height: 40px;
 }
 
 .focus-time-container {
@@ -369,15 +358,19 @@ body.dark-mode .delete-task {
 }
 
 .focus-time-container input {
-    width: 50px;
-    padding: 5px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
+    width: 80px;
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    background: transparent;
+    color: var(--text-color);
+    text-align: center;
 }
 
 .timer-buttons {
     display: flex;
-    gap: 5px;
+    gap: 12px;
     flex: 0 0 auto;
 }
 
@@ -389,36 +382,62 @@ body.dark-mode .delete-task {
 }
 
 .extend-time-container input {
-    width: 50px;
-    padding: 5px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
+    width: 80px;
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    background: transparent;
+    color: var(--text-color);
+    text-align: center;
 }
 
 .pomodoro-controls button {
-    padding: 5px 10px;
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    background: transparent;
+    color: var(--text-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    height: 40px;
+    min-width: 80px;
+}
+
+.pomodoro-controls button:hover {
     background-color: var(--primary-color);
     color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    min-width: fit-content;
+}
+
+.pomodoro-controls input {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    background: transparent;
+    color: var(--text-color);
+    height: 40px;
 }
 
 @media (max-width: 600px) {
     .pomodoro-controls {
-        flex-direction: row;
-        align-items: center;
-        gap: 8px;
+        flex-direction: column;
+        align-items: stretch;
     }
 
-    .focus-title-container {
-        min-width: 150px;
+    .pomodoro-controls input,
+    .pomodoro-controls button {
+        width: 100%;
     }
 
-    .container {
-        padding: 20px;
+    .time-buttons {
+        flex-wrap: wrap;
+    }
+
+    .time-preset, .time-reset {
+        flex: 1;
+        min-width: 0;
     }
 }
 
@@ -628,4 +647,174 @@ body.dark-mode .focus-task-item .edit-end-time {
 .focus-task-item .delete-focus-task {
     padding: 0 5px;
     margin: 0;
+}
+
+.selected-time {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.selected-time input {
+    width: 80px;
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    color: var(--text-color);
+    background: transparent;
+    text-align: center;
+}
+
+.selected-time span {
+    color: var(--text-color);
+    font-size: 1.1em;
+}
+
+body.dark-mode .selected-time input {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.time-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.time-preset {
+    padding: 8px 16px;
+    height: 40px;
+    min-width: 80px;
+}
+
+.time-preset:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.time-preset.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.custom-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+#custom-time-btn {
+    padding: 6px 12px;
+    border: 2px solid var(--secondary-color);
+    background: transparent;
+    color: var(--text-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#custom-time-btn:hover {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.time-reset {
+    padding: 8px 16px;
+    border: 2px solid #ff4444;
+    background: transparent;
+    color: #ff4444;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    height: 40px;
+    min-width: 80px;
+}
+
+.time-reset:hover {
+    background-color: #ff4444;
+    color: white;
+}
+
+body.dark-mode .time-reset {
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+body.dark-mode .time-reset:hover {
+    background-color: #ff6b6b;
+    color: #1a1a1a;
+}
+
+/* 모든 버튼 공통 스타일 */
+button {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    background: transparent;
+    color: var(--text-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.1em;
+    height: 40px;
+    min-width: 80px;
+}
+
+button:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* 모든 입력창 공통 스타일 */
+input[type="text"],
+input[type="number"] {
+    padding: 8px 16px;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    font-size: 1.1em;
+    background: transparent;
+    color: var(--text-color);
+    height: 40px;
+}
+
+/* 날짜 네비게이션 스타일 수정 */
+#date-navigation {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+    padding: 16px;
+}
+
+#date-navigation button {
+    min-width: 80px;
+}
+
+/* 다크모드 대응 */
+body.dark-mode input {
+    background-color: #2c2c2c;
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+body.dark-mode .task-item {
+    border-color: #3a3a3a;
+}
+
+body.dark-mode .task-item:hover {
+    border-color: var(--primary-color);
+}
+
+/* 특수 버튼 스타일 (삭제, 초기화 등) */
+.delete-task, .time-reset {
+    border-color: #ff4444;
+    color: #ff4444;
+}
+
+.delete-task:hover, .time-reset:hover {
+    background-color: #ff4444;
+    color: white;
 }

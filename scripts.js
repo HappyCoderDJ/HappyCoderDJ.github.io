@@ -528,23 +528,101 @@ document.addEventListener('DOMContentLoaded', function() {
         const timerProgress = document.querySelector('.timer-progress');
         const totalTime = timerStatus.focusDuration * 60;
         const progress = remainingTime / totalTime;
-        const circumference = 2 * Math.PI * 45; // 원의 둘레 (r=45)
+        const circumference = 2 * Math.PI * 45;
         const offset = circumference * (1 - progress);
+        
+        // 프로그레스 바가 갑자기 변하지 않도록 transition 추가
+        timerProgress.style.transition = 'stroke-dashoffset 0.5s linear';
         timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
         timerProgress.style.strokeDashoffset = offset;
+
+        // 마지막 5분 체크
+        const isLastFiveMinutes = remainingTime <= 300; // 5분 = 300초
+        
+        // 타이머 색상 변경
+        timerDisplay.style.color = isLastFiveMinutes ? '#ff4444' : '';
+        
+        // 프로그레스 바 색상 변경
+        timerProgress.style.stroke = isLastFiveMinutes ? '#ff4444' : '';
     }
 
+    // 시간 프리셋 버튼 이벤트 처리
+    const timeButtons = document.querySelectorAll('.time-preset');
+    const selectedTimeInput = document.getElementById('selected-time-input');
+    const resetTimeBtn = document.getElementById('reset-time');
+
+    // 초기값 설정
+    selectedTimeInput.value = "30";
+    focusTimeInput.value = "30";
+
+    // 리셋 버튼 이벤트 처리
+    resetTimeBtn.addEventListener('click', function() {
+        // 시간을 30분으로 초기화
+        selectedTimeInput.value = "30";
+        focusTimeInput.value = "30";
+        
+        // 모든 버튼의 active 상태 제거
+        timeButtons.forEach(btn => btn.classList.remove('active'));
+        
+        // 타이머가 실행 중이 아닐 때만 타이머 표시도 업데이트
+        if (!timerInterval) {
+            const timerDisplay = document.getElementById('timer-countdown');
+            timerDisplay.textContent = "30:00";
+        }
+    });
+
+    // 선택된 시간 입력 처리
+    selectedTimeInput.addEventListener('input', function() {
+        const minutes = parseInt(this.value) || 30;
+        focusTimeInput.value = minutes;
+        
+        // 버튼들의 active 상태 제거
+        timeButtons.forEach(btn => btn.classList.remove('active'));
+    });
+
+    // 시간 버튼 클릭 처리
+    timeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // 모든 버튼에서 active 클래스 제거
+            timeButtons.forEach(btn => btn.classList.remove('active'));
+            // 클릭된 버튼에 active 클래스 추가
+            this.classList.add('active');
+            
+            // 현재 입력된 값에 버튼의 값을 더함
+            const currentValue = parseInt(selectedTimeInput.value) || 30;
+            const buttonValue = parseInt(this.dataset.minutes);
+            const newValue = currentValue + buttonValue;
+            
+            // 입력창과 hidden input 업데이트
+            selectedTimeInput.value = newValue;
+            focusTimeInput.value = newValue;
+        });
+    });
+
+    // startTimer 함수 수정
     function startTimer(isRestoring = false) {
-        const focusTitle = document.getElementById('focus-title').value.trim();
+        let focusTitle = document.getElementById('focus-title').value.trim();
         const focusTime = parseInt(document.getElementById('focus-time').value) || 25;
         
-        if (!isRestoring && !focusTitle) {
-            alert('집중 제목을 입력해주세요.');
-            return;
+        // 제목이 없으면 "무제"로 설정
+        if (!focusTitle) {
+            focusTitle = "무제";
+            document.getElementById('focus-title').value = focusTitle;
         }
 
+        // 이미 실행 중인 타이머가 있다면 시간만 추가
         if (timerInterval) {
-            clearInterval(timerInterval);
+            // 남은 시간에 새로 선택한 시간을 추가
+            remainingTime += focusTime * 60;
+            
+            // timerStatus의 전체 시간도 업데이트
+            timerStatus.focusDuration += focusTime;
+            
+            // 타이머 상태 저장 및 디스플레이 업데이트
+            timerStatus.remainingTime = remainingTime;
+            saveTimerStatus();
+            updateTimerDisplay();
+            return;
         }
 
         if (!isRestoring) {
@@ -554,6 +632,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const circumference = 2 * Math.PI * 45;
             timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
             timerProgress.style.strokeDashoffset = 0;
+            timerProgress.style.stroke = ''; // 색상 초기화
+            timerDisplay.style.color = ''; // 타이머 색상 초기화
             
             const newTask = {
                 title: focusTitle,
@@ -571,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
             startTime: new Date().getTime(),
             remainingTime: remainingTime,
             focusTitle: focusTitle,
-            focusDuration: focusTime
+            focusDuration: !isRestoring ? focusTime : timerStatus.focusDuration + focusTime
         };
         
         updateTimerDisplay();
@@ -588,7 +668,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 1000);
 
         // 타이머 시작 시 버튼 상태 변경
-        startTimerBtn.disabled = true;
+        startTimerBtn.disabled = false; // 시작 버튼 활성화 상태 유지
         pauseTimerBtn.disabled = false;
     }
 
@@ -621,10 +701,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function extendTimer() {
         const extendMinutes = parseInt(document.getElementById('extend-time').value) || 0;
+        if (extendMinutes <= 0) return;
+
+        // 전체 시간 업데이트
+        timerStatus.focusDuration += extendMinutes;
         remainingTime += extendMinutes * 60;
+        
+        // 원형 타이머 업데이트
+        const timerProgress = document.querySelector('.timer-progress');
+        const circumference = 2 * Math.PI * 45;
+        const totalTime = timerStatus.focusDuration * 60;
+        const progress = remainingTime / totalTime;
+        const offset = circumference * (1 - progress);
+        
+        timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
+        timerProgress.style.strokeDashoffset = offset;
+
+        // 타이머 상태 저장
         timerStatus.remainingTime = remainingTime;
         saveTimerStatus();
         updateTimerDisplay();
+        
+        // 입력 필드 초기화
+        document.getElementById('extend-time').value = '';
     }
 
     function completeTimer() {

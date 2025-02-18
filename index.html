@@ -42,8 +42,16 @@
                         </div>
                         
                         <div class="focus-time-container">
-                            <label for="focus-time">시간 (분):</label>
-                            <input type="number" id="focus-time" value="30" min="1" max="999">
+                            <div class="time-buttons">
+                                <button type="button" class="time-preset" data-minutes="5">5분</button>
+                                <button type="button" class="time-preset" data-minutes="15">15분</button>
+                                <button type="button" id="reset-time" class="time-reset">초기화</button>
+                            </div>
+                            <div class="selected-time">
+                                <input type="number" id="selected-time-input" value="30" min="1" max="999">
+                                <span>분</span>
+                            </div>
+                            <input type="number" id="focus-time" value="30" min="1" max="999" style="display: none;">
                         </div>
                         
                         <div class="timer-buttons">
