@@ -399,80 +399,113 @@ body.dark-mode .delete-task {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* 제목 입력 영역 스타일 */
+/* 집중작업 설정 영역 개선 */
+.pomodoro-controls {
+    background: var(--card-background);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* 제목 입력 컨테이너 개선 */
 .focus-title-container {
+    background: linear-gradient(to right, rgba(46, 204, 113, 0.08), rgba(46, 204, 113, 0.02));
+    border: 1px solid rgba(46, 204, 113, 0.2);
+    border-left: 4px solid var(--secondary-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.focus-title-container:focus-within {
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.1);
+}
+
+.focus-title-container label {
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 0.95em;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.focus-title-container input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    border-radius: 8px;
+    background: var(--card-background);
+    color: var(--text-color);
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+}
+
+.focus-title-container input:focus {
+    border-color: var(--secondary-color);
+    outline: none;
+}
+
+/* 시간 설정 컨테이너 개선 */
+.focus-time-container {
+    background: linear-gradient(to right, rgba(52, 152, 219, 0.08), rgba(52, 152, 219, 0.02));
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    border-left: 4px solid var(--primary-color);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.selected-time {
     display: flex;
     align-items: center;
     gap: 12px;
     margin-bottom: 16px;
-    padding: 12px;
-    border-left: 4px solid var(--secondary-color);
-    background: linear-gradient(to right, rgba(46, 204, 113, 0.05), transparent);
-    border-radius: 8px;
 }
 
-.focus-title-container label {
-    white-space: nowrap;
-    font-size: 0.9em;
-    font-weight: 600;
+.selected-time input {
+    width: 80px;
+    padding: 10px;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    color: var(--text-color);
+    background: var(--card-background);
+}
+
+.selected-time span {
+    font-size: 1.1em;
     color: var(--text-color);
     opacity: 0.8;
 }
 
-.focus-title-container input {
-    flex: 1;
-    min-width: 0; /* flex-basis 오버플로우 방지 */
-}
-
-/* 타이머 설정 행 스타일 */
-.timer-row {
+/* 시간 프리셋 버튼 개선 */
+.time-buttons {
     display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    padding: 12px;
-    border-radius: 8px;
+    gap: 10px;
 }
 
-/* 시간 설정 행 스타일 */
-.timer-row:first-of-type {
-    border-left: 4px solid var(--primary-color);
-    background: linear-gradient(to right, rgba(52, 152, 219, 0.05), transparent);
-}
-
-/* 제어 버튼 행 스타일 */
-.timer-row:last-of-type {
-    border-left: 4px solid #e74c3c;
-    background: linear-gradient(to right, rgba(231, 76, 60, 0.05), transparent);
-}
-
-/* 시간 프리셋 버튼 컨테이너 */
-.time-presets {
-    display: flex;
-    gap: 8px;
-    flex: 2;
-}
-
-.time-presets button {
-    flex: 1;
-    min-width: 60px;
-}
-
-/* 버튼 스타일 개선 */
 .time-preset {
+    flex: 1;
+    padding: 10px;
     border: 2px solid var(--primary-color);
-    color: var(--primary-color);
+    border-radius: 8px;
     background: transparent;
+    color: var(--primary-color);
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .time-preset:hover {
     background: var(--primary-color);
     color: white;
+    transform: translateY(-2px);
 }
 
 .time-reset {
-    border: 2px solid #e74c3c;
+    border-color: #e74c3c;
     color: #e74c3c;
 }
 
@@ -481,17 +514,35 @@ body.dark-mode .delete-task {
     color: white;
 }
 
+/* 타이머 제어 버튼 개선 */
+.timer-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.timer-buttons button {
+    flex: 1;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
 #start-timer {
-    border: 2px solid var(--secondary-color);
     background: var(--secondary-color);
+    border: none;
     color: white;
 }
 
 #start-timer:hover {
-    opacity: 0.9;
+    background: #27ae60;
+    transform: translateY(-2px);
 }
 
 #pause-timer {
+    background: transparent;
     border: 2px solid #e74c3c;
     color: #e74c3c;
 }
@@ -499,41 +550,18 @@ body.dark-mode .delete-task {
 #pause-timer:hover {
     background: #e74c3c;
     color: white;
-}
-
-#extend-timer {
-    border: 2px solid var(--primary-color);
-    color: var(--primary-color);
-}
-
-#extend-timer:hover {
-    background: var(--primary-color);
-    color: white;
-}
-
-/* 입력창 스타일 개선 */
-.timer-controls input {
-    border: 2px solid var(--hover-color);
-    background: transparent;
-    transition: all 0.3s ease;
-}
-
-.timer-controls input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+    transform: translateY(-2px);
 }
 
 /* 다크모드 대응 */
-body.dark-mode .focus-title-container {
-    background: linear-gradient(to right, rgba(46, 204, 113, 0.1), transparent);
+body.dark-mode .focus-title-container,
+body.dark-mode .focus-time-container {
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.05), transparent);
 }
 
-body.dark-mode .timer-row:first-of-type {
-    background: linear-gradient(to right, rgba(52, 152, 219, 0.1), transparent);
-}
-
-body.dark-mode .timer-row:last-of-type {
-    background: linear-gradient(to right, rgba(231, 76, 60, 0.1), transparent);
+body.dark-mode .focus-title-container input,
+body.dark-mode .selected-time input {
+    background: rgba(0, 0, 0, 0.2);
 }
 
 /* 반응형 처리 */
