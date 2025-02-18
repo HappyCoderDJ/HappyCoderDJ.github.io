@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', function() {
         timerProgress.style.strokeDashoffset = offset;
 
         // 마지막 5분 체크
-        const isLastFiveMinutes = remainingTime <= 300; // 5분 = 300초
+        const isLastFiveMinutes = remainingTime <= 300;
         
         // 타이머 색상 변경
         timerDisplay.style.color = isLastFiveMinutes ? '#ff4444' : '';
@@ -551,13 +551,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedTimeInput = document.getElementById('selected-time-input');
     const resetTimeBtn = document.getElementById('reset-time');
 
-    // 초기값 설정
+    // 초기값 설정 부분 수정
     selectedTimeInput.value = "30";
     focusTimeInput.value = "30";
 
-    // 리셋 버튼 이벤트 처리
+    // 리셋 버튼 이벤트 처리 수정
     resetTimeBtn.addEventListener('click', function() {
-        // 시간을 30분으로 초기화
+        // 시간을 초기화
         selectedTimeInput.value = "30";
         focusTimeInput.value = "30";
         
@@ -567,7 +567,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // 타이머가 실행 중이 아닐 때만 타이머 표시도 업데이트
         if (!timerInterval) {
             const timerDisplay = document.getElementById('timer-countdown');
-            timerDisplay.textContent = "30:00";
+            timerDisplay.textContent = "00:00";
+            
+            // 프로그레스 바도 초기화
+            const timerProgress = document.querySelector('.timer-progress');
+            const circumference = 2 * Math.PI * 45;
+            timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
+            timerProgress.style.strokeDashoffset = circumference; // 완전히 비어있는 상태
         }
     });
 
@@ -604,56 +610,26 @@ document.addEventListener('DOMContentLoaded', function() {
         let focusTitle = document.getElementById('focus-title').value.trim();
         const focusTime = parseInt(document.getElementById('focus-time').value) || 25;
         
-        // 제목이 없으면 "무제"로 설정
         if (!focusTitle) {
             focusTitle = "무제";
             document.getElementById('focus-title').value = focusTitle;
         }
 
-        // 이미 실행 중인 타이머가 있다면 시간만 추가
         if (timerInterval) {
-            // 남은 시간에 새로 선택한 시간을 추가
-            remainingTime += focusTime * 60;
-            
-            // timerStatus의 전체 시간도 업데이트
-            timerStatus.focusDuration += focusTime;
-            
-            // 타이머 상태 저장 및 디스플레이 업데이트
-            timerStatus.remainingTime = remainingTime;
-            saveTimerStatus();
-            updateTimerDisplay();
-            return;
+            clearInterval(timerInterval);
         }
 
         if (!isRestoring) {
             remainingTime = focusTime * 60;
-            // 원형 타이머 초기화
-            const timerProgress = document.querySelector('.timer-progress');
-            const circumference = 2 * Math.PI * 45;
-            timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
-            timerProgress.style.strokeDashoffset = 0;
-            timerProgress.style.stroke = ''; // 색상 초기화
-            timerDisplay.style.color = ''; // 타이머 색상 초기화
-            
-            const newTask = {
-                title: focusTitle,
-                startTime: new Date().toISOString(),
-                duration: focusTime,
-                completed: false
+            timerStatus = {
+                isRunning: true,
+                startTime: new Date().getTime(),
+                remainingTime: remainingTime,
+                focusTitle: focusTitle,
+                focusDuration: focusTime
             };
-            focusTasks.unshift(newTask);
-            saveFocusTasks();
-            renderFocusTasks();
         }
 
-        timerStatus = {
-            isRunning: true,
-            startTime: new Date().getTime(),
-            remainingTime: remainingTime,
-            focusTitle: focusTitle,
-            focusDuration: !isRestoring ? focusTime : timerStatus.focusDuration + focusTime
-        };
-        
         updateTimerDisplay();
         
         timerInterval = setInterval(() => {
@@ -667,8 +643,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 1000);
 
-        // 타이머 시작 시 버튼 상태 변경
-        startTimerBtn.disabled = false; // 시작 버튼 활성화 상태 유지
+        startTimerBtn.disabled = false;
         pauseTimerBtn.disabled = false;
     }
 
@@ -886,28 +861,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 타이머 상태 저장 함수
+    // 타이머 상태 저장 함수 수정
     function saveTimerStatus() {
         localStorage.setItem('timerStatus', JSON.stringify({
             ...timerStatus,
-            lastSaved: new Date().getTime()
+            lastSaved: new Date().getTime(),
+            originalStartTime: timerStatus.startTime // 원래 시작 시간 저장
         }));
     }
 
-    // 타이머 상태 불러오기 함수
+    // 타이머 상태 불러오기 함수 수정
     function loadTimerStatus() {
         const savedStatus = localStorage.getItem('timerStatus');
         if (savedStatus) {
             const status = JSON.parse(savedStatus);
             const now = new Date().getTime();
-            const timePassed = Math.floor((now - status.lastSaved) / 1000);
             
-            if (status.isRunning && status.remainingTime > timePassed) {
-                timerStatus = status;
-                remainingTime = status.remainingTime - timePassed;
-                document.getElementById('focus-title').value = status.focusTitle;
-                document.getElementById('focus-time').value = status.focusDuration;
-                startTimer(true);
+            if (status.isRunning && status.originalStartTime) {
+                // 원래 시작 시간부터 얼마나 지났는지 계산
+                const totalTimePassed = Math.floor((now - status.originalStartTime) / 1000);
+                const totalTime = status.focusDuration * 60;
+                
+                // 남은 시간 계산
+                const newRemainingTime = totalTime - totalTimePassed;
+                
+                if (newRemainingTime > 0) {
+                    timerStatus = {
+                        ...status,
+                        startTime: status.originalStartTime,
+                        remainingTime: newRemainingTime
+                    };
+                    remainingTime = newRemainingTime;
+                    document.getElementById('focus-title').value = status.focusTitle;
+                    document.getElementById('focus-time').value = status.focusDuration;
+                    startTimer(true);
+                } else {
+                    // 타이머가 이미 완료된 경우
+                    completeTimer();
+                }
             }
         }
     }
