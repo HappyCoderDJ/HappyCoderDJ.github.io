@@ -32,6 +32,31 @@
                 </ul>
             </section>
 
+
+            <section class="card" id="to-do">
+                <h2>오늘의 할 일</h2>
+                <ul id="task-list">
+                    <!-- 할 일 목록이 여기에 동적으로 추가됩니다 -->
+                </ul>
+                <div class="add-task">
+                    <input type="text" id="new-task" placeholder="새로운 할 일 입력">
+                    <button id="add-task-btn">추가</button>
+                </div>
+                <div class="task-actions">
+                    <button id="download-tasks">목록 다운로드</button>
+                    <input type="file" id="upload-tasks" accept=".json" style="display: none;">
+                    <button id="upload-tasks-btn">목록 업로드</button>
+                    <button id="copy-url-btn">URL 복사하기</button>
+                </div>
+            </section>
+
+            <section class="card" id="progress">
+                <h2>임무 완수율</h2>
+                <div class="progress-bar">
+                    <div class="progress" style="width: 0%;">0%</div>
+                </div>
+            </section>
+
             <section class="card" id="focus-section">
                 <h2>집중 작업</h2>
                 <div id="pomodoro-timer">
@@ -60,10 +85,7 @@
                             <button id="pause-timer">중단</button>
                         </div>
                         
-                        <div class="extend-time-container">
-                            <input type="number" id="extend-time" placeholder="연장 (분)" min="1" max="999">
-                            <button id="extend-timer">연장</button>
-                        </div>
+       
                     </div>
                     <div class="timer-display">
                         <div class="circular-timer">
@@ -73,38 +95,28 @@
                             </svg>
                             <span id="timer-countdown">30:00</span>
                         </div>
+                        <div class="extend-time-container">
+                            <input type="number" id="extend-time" placeholder="연장 (분)" min="1" max="999">
+                            <button id="extend-timer">연장</button>
+                        </div>
                     </div>
+
                 </div>
 
                 <div id="focus-task-list">
                     <h3>집중작업 이력</h3>
                     <div class="focus-history-container">
-                        <ul id="focus-tasks"></ul>
+                        <ul id="focus-tasks">
+                            <li class="focus-task-item">
+                                <div class="task-info">
+                                    <span class="task-title">코딩</span>
+                                    <span class="task-duration">60분</span>
+                                    <span class="task-time">오후 05:17</span>
+                                </div>
+                                <button class="delete-task">×</button>
+                            </li>
+                        </ul>
                     </div>
-                </div>
-            </section>
-
-            <section class="card" id="to-do">
-                <h2>오늘의 할 일</h2>
-                <ul id="task-list">
-                    <!-- 할 일 목록이 여기에 동적으로 추가됩니다 -->
-                </ul>
-                <div class="add-task">
-                    <input type="text" id="new-task" placeholder="새로운 할 일 입력">
-                    <button id="add-task-btn">추가</button>
-                </div>
-                <div class="task-actions">
-                    <button id="download-tasks">목록 다운로드</button>
-                    <input type="file" id="upload-tasks" accept=".json" style="display: none;">
-                    <button id="upload-tasks-btn">목록 업로드</button>
-                    <button id="copy-url-btn">URL 복사하기</button>
-                </div>
-            </section>
-
-            <section class="card" id="progress">
-                <h2>임무 완수율</h2>
-                <div class="progress-bar">
-                    <div class="progress" style="width: 0%;">0%</div>
                 </div>
             </section>
 

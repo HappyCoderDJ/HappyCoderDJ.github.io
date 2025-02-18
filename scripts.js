@@ -770,35 +770,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const li = document.createElement('li');
             li.className = 'focus-task-item';
             
-            // 시간 포맷팅
             const startTimeStr = task.startTime ? new Date(task.startTime).toLocaleTimeString('ko-KR', {
                 hour: '2-digit',
                 minute: '2-digit'
             }) : '';
+            
             const endTimeStr = task.endTime ? new Date(task.endTime).toLocaleTimeString('ko-KR', {
                 hour: '2-digit',
                 minute: '2-digit'
             }) : '';
             
-            // 총 시간 계산
-            const durationStr = task.duration ? `${task.duration}분` : '';
-            
             li.innerHTML = `
                 <div class="task-info">
-                    <span class="task-title ${task.completed ? 'completed' : ''}" data-index="${index}">${task.title}</span>
-                    <input type="text" class="edit-title" value="${task.title}" style="display: none;">
-                    <span class="task-time">
-                        <input type="time" class="edit-start-time" value="${formatTimeForInput(task.startTime)}" style="display: none;">
-                        <span class="time-text">${startTimeStr} - ${endTimeStr}</span>
-                        <input type="time" class="edit-end-time" value="${formatTimeForInput(task.endTime)}" style="display: none;">
+                    <span class="task-title">${task.title}</span>
+                    <span class="task-time-info">
+                        <span class="task-duration">${task.duration}분</span>
+                        <span class="separator">·</span>
+                        <span class="task-time">${startTimeStr}</span>
+                        ${endTimeStr ? `<span class="separator">-</span><span class="task-time">${endTimeStr}</span>` : ''}
                     </span>
-                    <span class="task-duration">${durationStr}</span>
                 </div>
-                <div class="task-controls">
-                    <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''}>
-                    <button class="delete-focus-task" data-index="${index}">×</button>
-                </div>
+                <button class="delete-task">×</button>
             `;
+            
             focusTasksList.appendChild(li);
         });
     }
@@ -812,23 +806,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 편집 관련 이벤트 리스너 추가
     focusTasksList.addEventListener('click', (e) => {
-        // 체크박스 클릭 처리
-        if (e.target.classList.contains('task-checkbox')) {
-            const taskItem = e.target.closest('.focus-task-item');
-            const index = parseInt(taskItem.querySelector('.task-title').dataset.index);
-            const task = focusTasks[index];
+        if (e.target.classList.contains('delete-task')) {
+            const taskItem = e.target.closest('li');
+            const index = Array.from(focusTasksList.children).indexOf(taskItem);
             
-            task.completed = e.target.checked;
-            if (task.completed && !task.endTime) {
-                task.endTime = new Date().toISOString();
-            }
-            
-            saveFocusTasks();
-            renderFocusTasks();
-        }
-        // 삭제 버튼 클릭 처리
-        else if (e.target.classList.contains('delete-focus-task')) {
-            const index = parseInt(e.target.dataset.index);
             if (confirm('이 작업을 삭제하시겠습니까?')) {
                 focusTasks.splice(index, 1);
                 saveFocusTasks();
