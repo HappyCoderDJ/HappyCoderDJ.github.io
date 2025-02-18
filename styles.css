@@ -357,12 +357,11 @@ body.dark-mode .delete-task {
 
 #pomodoro-timer {
     display: grid;
-    grid-template-columns: 45% 55%;
+    grid-template-columns: minmax(280px, 45%) minmax(280px, 55%);
     gap: 16px;
     padding: 16px;
-    border-bottom: 1px solid var(--hover-color);
-    margin-bottom: 20px;
-    min-width: 400px;
+    min-width: 320px;
+    overflow-x: auto;
 }
 
 /* 왼쪽 설정 영역 */
@@ -389,39 +388,6 @@ body.dark-mode .delete-task {
     box-sizing: border-box;
 }
 
-/* 입력 필드 컨테이너 공통 스타일 */
-.focus-title-container,
-.focus-time-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-/* 라벨 스타일 */
-.focus-title-container label,
-.focus-time-container label {
-    font-size: 0.9em;
-    font-weight: 600;
-    color: var(--text-color);
-    opacity: 0.8;
-}
-
-/* 입력 필드 스타일 */
-.timer-setup input {
-    padding: 10px 12px;
-    border: 1px solid var(--hover-color);
-    border-radius: 8px;
-    font-size: 1em;
-    background: var(--background-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-}
-
-.timer-setup input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
-}
-
 /* 타이머 컨트롤 영역 */
 .timer-controls {
     display: flex;
@@ -430,73 +396,198 @@ body.dark-mode .delete-task {
     padding: 16px;
     background: var(--card-background);
     border-radius: 12px;
-    border-left: 4px solid var(--secondary-color);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    min-width: 160px;
 }
 
-/* 프리셋 버튼 영역 */
-.preset-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+/* 제목 입력 영역 스타일 */
+.focus-title-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-left: 4px solid var(--secondary-color);
+    background: linear-gradient(to right, rgba(46, 204, 113, 0.05), transparent);
+    border-radius: 8px;
 }
 
-/* 프리셋 버튼 스타일 */
-.time-preset {
-    padding: 8px 4px;
-    border: 1px solid var(--hover-color);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text-color);
-    font-size: 0.85em;
-    font-weight: 500;
-    transition: all 0.2s ease;
+.focus-title-container label {
     white-space: nowrap;
-    min-width: 50px;
+    font-size: 0.9em;
+    font-weight: 600;
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
-/* 시작/정지 버튼 */
-#start-timer {
-    padding: 10px;
-    background: var(--secondary-color);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 1em;
-    font-weight: 600;
+.focus-title-container input {
+    flex: 1;
+    min-width: 0; /* flex-basis 오버플로우 방지 */
+}
+
+/* 타이머 설정 행 스타일 */
+.timer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+/* 시간 설정 행 스타일 */
+.timer-row:first-of-type {
+    border-left: 4px solid var(--primary-color);
+    background: linear-gradient(to right, rgba(52, 152, 219, 0.05), transparent);
+}
+
+/* 제어 버튼 행 스타일 */
+.timer-row:last-of-type {
+    border-left: 4px solid #e74c3c;
+    background: linear-gradient(to right, rgba(231, 76, 60, 0.05), transparent);
+}
+
+/* 시간 프리셋 버튼 컨테이너 */
+.time-presets {
+    display: flex;
+    gap: 8px;
+    flex: 2;
+}
+
+.time-presets button {
+    flex: 1;
+    min-width: 60px;
+}
+
+/* 버튼 스타일 개선 */
+.time-preset {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    background: transparent;
     transition: all 0.3s ease;
 }
 
-/* 리셋 버튼 */
+.time-preset:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
 .time-reset {
-    padding: 8px;
-    border: 1px solid #ff4444;
-    border-radius: 6px;
+    border: 2px solid #e74c3c;
+    color: #e74c3c;
+}
+
+.time-reset:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+#start-timer {
+    border: 2px solid var(--secondary-color);
+    background: var(--secondary-color);
+    color: white;
+}
+
+#start-timer:hover {
+    opacity: 0.9;
+}
+
+#pause-timer {
+    border: 2px solid #e74c3c;
+    color: #e74c3c;
+}
+
+#pause-timer:hover {
+    background: #e74c3c;
+    color: white;
+}
+
+#extend-timer {
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+#extend-timer:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 입력창 스타일 개선 */
+.timer-controls input {
+    border: 2px solid var(--hover-color);
     background: transparent;
-    color: #ff4444;
-    font-size: 0.85em;
-    font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
+}
+
+.timer-controls input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
 }
 
 /* 다크모드 대응 */
-body.dark-mode .timer-setup input {
-    background: var(--card-background);
-    border-color: #444;
+body.dark-mode .focus-title-container {
+    background: linear-gradient(to right, rgba(46, 204, 113, 0.1), transparent);
 }
 
-body.dark-mode .timer-setup input:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.1);
+body.dark-mode .timer-row:first-of-type {
+    background: linear-gradient(to right, rgba(52, 152, 219, 0.1), transparent);
 }
 
-body.dark-mode .time-preset:hover {
-    background: #3a3a3a;
+body.dark-mode .timer-row:last-of-type {
+    background: linear-gradient(to right, rgba(231, 76, 60, 0.1), transparent);
 }
 
-body.dark-mode .time-reset:hover {
-    background: #3a2a2a;
+/* 반응형 처리 */
+@media (max-width: 768px) {
+    #pomodoro-timer {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+    }
+    
+    .timer-controls,
+    .timer-display {
+        min-width: 280px;
+        width: 100%;
+    }
+    
+    .circular-timer {
+        width: 160px;
+        height: 160px;
+    }
+    
+    #timer-countdown {
+        font-size: 2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .timer-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .time-presets {
+        flex-direction: row;
+        width: 100%;
+    }
+    
+    .time-input {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .extend-controls {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .focus-title-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .focus-title-container input {
+        width: 100%;
+    }
 }
 
 /* 오른쪽 타이머 디스플레이 영역 */
@@ -561,409 +652,6 @@ body.dark-mode .time-reset:hover {
     stroke-dasharray: 283;
     stroke-dashoffset: 0;
     transition: stroke-dashoffset 1s linear;
-}
-
-/* 반응형 처리 */
-@media (max-width: 900px) {
-    #pomodoro-timer {
-        grid-template-columns: 45% 55%;
-        min-width: 400px;
-    }
-    
-    .timer-settings, 
-    .timer-display {
-        width: 100%;
-    }
-}
-
-@media (max-width: 600px) {
-    .timer-controls {
-        padding: 12px;
-    }
-    
-    .preset-buttons {
-        grid-template-columns: repeat(3, 1fr);
-    }
-    
-    .time-preset {
-        padding: 6px 4px;
-        font-size: 0.8em;
-        min-width: 40px;
-    }
-    
-    #start-timer {
-        padding: 8px;
-        font-size: 0.95em;
-    }
-    
-    .time-reset {
-        padding: 6px;
-        font-size: 0.8em;
-    }
-    
-    .circular-timer {
-        width: 160px;
-        height: 160px;
-    }
-    
-    #timer-countdown {
-        font-size: 2em;
-    }
-}
-
-@media (max-400px) {
-    .timer-controls {
-        padding: 10px;
-        min-width: 140px;
-    }
-    
-    .preset-buttons {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 6px;
-    }
-    
-    .time-preset {
-        padding: 5px 3px;
-        font-size: 0.75em;
-        min-width: 35px;
-    }
-}
-
-.pomodoro-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin: 20px 0;
-}
-
-#focus-task-list {
-    margin-top: 20px;
-}
-
-.focus-task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    border-bottom: 1px solid var(--hover-color);
-    gap: 10px;
-}
-
-.focus-task-item:last-child {
-    border-bottom: none;
-}
-
-.focus-task-item .task-info {
-    flex-grow: 1;
-    display: flex;
-    gap: 15px;
-    align-items: center;
-}
-
-.focus-task-item .task-title {
-    font-weight: bold;
-    min-width: 120px;
-}
-
-.focus-task-item .task-time {
-    color: var(--text-color);
-    opacity: 0.8;
-    font-size: 0.9em;
-}
-
-.focus-task-item .task-duration {
-    color: var(--primary-color);
-    font-size: 0.9em;
-}
-
-.focus-task-item .task-status {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8em;
-}
-
-.focus-task-item .task-status.completed {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.focus-task-item button {
-    background: none;
-    border: none;
-    color: #ff4444;
-    cursor: pointer;
-    font-size: 1.2rem;
-    opacity: 0.6;
-}
-
-.focus-task-item button:hover {
-    opacity: 1;
-}
-
-body.dark-mode .focus-task-item .task-time {
-    color: var(--text-color);
-    opacity: 0.7;
-}
-
-.add-focus-task {
-    display: flex;
-    margin-top: 15px;
-}
-
-.add-focus-task input {
-    flex-grow: 1;
-    padding: 5px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px 0 0 4px;
-}
-
-.add-focus-task button {
-    padding: 5px 10px;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 0 4px 4px 0;
-    cursor: pointer;
-}
-
-body.dark-mode .pomodoro-controls input,
-body.dark-mode .add-focus-task input {
-    background-color: #2c2c2c;
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-body.dark-mode .focus-task-item {
-    border-bottom-color: #444;
-}
-
-.focus-task-item .edit-title,
-.focus-task-item .edit-start-time,
-.focus-task-item .edit-end-time {
-    padding: 2px 5px;
-    border: 1px solid var(--primary-color);
-    border-radius: 4px;
-    font-size: 0.9em;
-    background-color: var(--card-background);
-    color: var(--text-color);
-}
-
-.focus-task-item .task-title,
-.focus-task-item .time-text {
-    cursor: pointer;
-}
-
-.focus-task-item .task-title:hover,
-.focus-task-item .time-text:hover {
-    color: var(--primary-color);
-}
-
-body.dark-mode .focus-task-item .edit-title,
-body.dark-mode .focus-task-item .edit-start-time,
-body.dark-mode .focus-task-item .edit-end-time {
-    background-color: #2c2c2c;
-    border-color: var(--primary-color);
-    color: #fff;
-}
-
-.task-title.completed {
-    text-decoration: line-through;
-    color: #888;
-}
-
-.task-checkbox {
-    cursor: not-allowed;
-}
-
-.task-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.task-checkbox {
-    cursor: not-allowed;
-    margin: 0;
-}
-
-.focus-task-item .task-title.completed {
-    text-decoration: line-through;
-    color: #888;
-}
-
-.focus-task-item .delete-focus-task {
-    padding: 0 5px;
-    margin: 0;
-}
-
-.selected-time {
-    margin-top: 8px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.selected-time input {
-    width: 80px;
-    padding: 8px 16px;
-    border: 2px solid var(--primary-color);
-    border-radius: 20px;
-    font-size: 1.1em;
-    color: var(--text-color);
-    background: transparent;
-    text-align: center;
-}
-
-.selected-time span {
-    color: var(--text-color);
-    font-size: 1.1em;
-}
-
-body.dark-mode .selected-time input {
-    background-color: #2c2c2c;
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-.time-buttons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.time-preset {
-    padding: 8px 16px;
-    height: 40px;
-    min-width: 80px;
-}
-
-.time-preset:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.time-preset.active {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.custom-time {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-#custom-time-btn {
-    padding: 6px 12px;
-    border: 2px solid var(--secondary-color);
-    background: transparent;
-    color: var(--text-color);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#custom-time-btn:hover {
-    background-color: var(--secondary-color);
-    color: white;
-}
-
-.time-reset {
-    padding: 8px 16px;
-    border: 2px solid #ff4444;
-    background: transparent;
-    color: #ff4444;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.1em;
-    height: 40px;
-    min-width: 80px;
-}
-
-.time-reset:hover {
-    background-color: #ff4444;
-    color: white;
-}
-
-body.dark-mode .time-reset {
-    border-color: #ff6b6b;
-    color: #ff6b6b;
-}
-
-body.dark-mode .time-reset:hover {
-    background-color: #ff6b6b;
-    color: #1a1a1a;
-}
-
-/* 모든 버튼 공통 스타일 */
-button {
-    padding: 8px 16px;
-    border: 2px solid var(--primary-color);
-    background: transparent;
-    color: var(--text-color);
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1.1em;
-    height: 40px;
-    min-width: 80px;
-}
-
-button:hover {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-/* 모든 입력창 공통 스타일 */
-input[type="text"],
-input[type="number"] {
-    padding: 8px 16px;
-    border: 2px solid var(--primary-color);
-    border-radius: 20px;
-    font-size: 1.1em;
-    background: transparent;
-    color: var(--text-color);
-    height: 40px;
-}
-
-/* 날짜 네비게이션 스타일 수정 */
-#date-navigation {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    padding: 16px;
-}
-
-#date-navigation button {
-    min-width: 80px;
-}
-
-/* 다크모드 대응 */
-body.dark-mode input {
-    background-color: #2c2c2c;
-    color: #fff;
-    border-color: var(--primary-color);
-}
-
-body.dark-mode .task-item {
-    border-color: #3a3a3a;
-}
-
-body.dark-mode .task-item:hover {
-    border-color: var(--primary-color);
-}
-
-/* 특수 버튼 스타일 (삭제, 초기화 등) */
-.delete-task, .time-reset {
-    border-color: #ff4444;
-    color: #ff4444;
-}
-
-.delete-task:hover, .time-reset:hover {
-    background-color: #ff4444;
-    color: white;
 }
 
 /* 공통 섹션 스타일 */

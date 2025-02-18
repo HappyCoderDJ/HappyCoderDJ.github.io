@@ -42,15 +42,16 @@
                         </div>
                         
                         <div class="focus-time-container">
+                            <div class="selected-time">
+                                <input type="number" id="selected-time-input" value="30" min="1" max="999">
+                                <span>분</span>
+                            </div>
                             <div class="time-buttons">
                                 <button type="button" class="time-preset" data-minutes="5">5분</button>
                                 <button type="button" class="time-preset" data-minutes="15">15분</button>
                                 <button type="button" id="reset-time" class="time-reset">초기화</button>
                             </div>
-                            <div class="selected-time">
-                                <input type="number" id="selected-time-input" value="30" min="1" max="999">
-                                <span>분</span>
-                            </div>
+
                             <input type="number" id="focus-time" value="30" min="1" max="999" style="display: none;">
                         </div>
                         
@@ -70,7 +71,7 @@
                                 <circle class="timer-background" cx="50" cy="50" r="45"/>
                                 <circle class="timer-progress" cx="50" cy="50" r="45"/>
                             </svg>
-                            <span id="timer-countdown">25:00</span>
+                            <span id="timer-countdown">30:00</span>
                         </div>
                     </div>
                 </div>
