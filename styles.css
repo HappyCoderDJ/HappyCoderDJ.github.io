@@ -15,10 +15,13 @@ body {
     margin: 0;
     padding: 0;
     transition: background-color 0.3s ease;
+    min-width: 500px;
+    overflow-x: auto;
 }
 
 .container {
     max-width: 800px;
+    min-width: 500px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -162,8 +165,8 @@ body.dark-mode {
     display: flex;
     justify-content: space-between;
     margin-top: 15px;
-    flex-wrap: wrap; /* 버튼들이 한 줄에 들어가지 않을 때 줄바꿈 */
-    gap: 10px; /* 버튼 사이의 간격 */
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
 #download-tasks, #upload-tasks-btn, #copy-url-btn {
@@ -188,7 +191,7 @@ body.dark-mode {
 }
 
 #copy-url-btn::before {
-    content: '\f0c1'; /* Font Awesome link icon */
+    content: '\f0c1';
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     margin-right: 5px;
@@ -199,24 +202,22 @@ body.dark-mode {
 }
 
 #copy-url-btn:hover {
-    background-color: #2980b9; /* Darker shade of primary color */
+    background-color: #2980b9;
 }
 
-/* 다크 모드에서의 버튼 스타일 */
 body.dark-mode #download-tasks,
 body.dark-mode #upload-tasks-btn {
     background-color: var(--primary-color);
 }
 
 body.dark-mode #copy-url-btn {
-    background-color: #3a8fd8; /* Lighter shade of primary color for dark mode */
+    background-color: #3a8fd8;
 }
 
 body.dark-mode #copy-url-btn:hover {
-    background-color: #58a6ff; /* Even lighter shade for hover in dark mode */
+    background-color: #58a6ff;
 }
 
-/* 반응형 디자인을 위한 미디어 쿼리 */
 @media (max-width: 600px) {
     .task-actions {
         flex-direction: column;
@@ -295,7 +296,6 @@ body.dark-mode #copy-url-btn:hover {
     opacity: 1;
 }
 
-/* 다크 모드에서의 입력 필드와 삭제 버튼 스타일 */
 body.dark-mode .edit-task input {
     background-color: #333;
     color: white;
@@ -311,57 +311,321 @@ body.dark-mode .delete-task {
     color: #888;
 }
 
-.wasted-time-container {
-    margin-top: 1rem;
+#focus-section {
+    margin-bottom: 20px;
 }
 
-.wasted-time-input {
+#focus-section h3 {
+    color: var(--secondary-color);
+    margin: 20px 0 10px 0;
+    font-size: 1.4em;
+}
+
+#pomodoro-timer {
+    border-bottom: 1px solid var(--hover-color);
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+}
+
+.pomodoro-controls {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: nowrap;
+    width: 100%;
 }
 
-.wasted-time-input input[type="time"],
-.wasted-time-input select {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
+.focus-title-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 1 1 auto;
+    min-width: 150px;
+}
+
+.focus-title-container label {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.focus-title-container input {
+    flex: 1;
+    min-width: 0;
+    padding: 5px;
+    border: 1px solid var(--primary-color);
     border-radius: 4px;
 }
 
-.wasted-time-list {
-    max-height: 200px;
-    overflow-y: auto;
+.focus-time-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
 }
 
-.wasted-time-item {
+.focus-time-container label {
+    white-space: nowrap;
+}
+
+.focus-time-container input {
+    width: 50px;
+    padding: 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+.timer-buttons {
+    display: flex;
+    gap: 5px;
+    flex: 0 0 auto;
+}
+
+.extend-time-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex: 0 0 auto;
+}
+
+.extend-time-container input {
+    width: 50px;
+    padding: 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+}
+
+.pomodoro-controls button {
+    padding: 5px 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+@media (max-width: 600px) {
+    .pomodoro-controls {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .focus-title-container {
+        min-width: 150px;
+    }
+
+    .container {
+        padding: 20px;
+    }
+}
+
+.timer-display {
+    text-align: center;
+    margin: 15px 0;
+    position: relative;
+}
+
+.circular-timer {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.timer-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.timer-background {
+    fill: none;
+    stroke: var(--hover-color);
+    stroke-width: 4;
+}
+
+.timer-progress {
+    fill: none;
+    stroke: var(--primary-color);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 1s linear;
+}
+
+#timer-countdown {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: var(--primary-color);
+    z-index: 1;
+}
+
+#focus-task-list {
+    margin-top: 20px;
+}
+
+.focus-task-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem;
-    border-bottom: 1px solid #eee;
+    padding: 12px;
+    border-bottom: 1px solid var(--hover-color);
+    gap: 10px;
 }
 
-.wasted-time-item button {
+.focus-task-item:last-child {
+    border-bottom: none;
+}
+
+.focus-task-item .task-info {
+    flex-grow: 1;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.focus-task-item .task-title {
+    font-weight: bold;
+    min-width: 120px;
+}
+
+.focus-task-item .task-time {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+
+.focus-task-item .task-duration {
+    color: var(--primary-color);
+    font-size: 0.9em;
+}
+
+.focus-task-item .task-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+}
+
+.focus-task-item .task-status.completed {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.focus-task-item button {
     background: none;
     border: none;
     color: #ff4444;
     cursor: pointer;
     font-size: 1.2rem;
+    opacity: 0.6;
 }
 
-.wasted-time-summary {
-    margin-top: 1rem;
-    text-align: right;
-    font-weight: bold;
+.focus-task-item button:hover {
+    opacity: 1;
 }
 
-.dark-mode .wasted-time-input input[type="time"],
-.dark-mode .wasted-time-input select {
+body.dark-mode .focus-task-item .task-time {
+    color: var(--text-color);
+    opacity: 0.7;
+}
+
+.add-focus-task {
+    display: flex;
+    margin-top: 15px;
+}
+
+.add-focus-task input {
+    flex-grow: 1;
+    padding: 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px 0 0 4px;
+}
+
+.add-focus-task button {
+    padding: 5px 10px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
+
+body.dark-mode .pomodoro-controls input,
+body.dark-mode .add-focus-task input {
     background-color: #2c2c2c;
     color: #fff;
-    border-color: #444;
+    border-color: var(--primary-color);
 }
 
-.dark-mode .wasted-time-item {
+body.dark-mode .focus-task-item {
     border-bottom-color: #444;
+}
+
+.focus-task-item .edit-title,
+.focus-task-item .edit-start-time,
+.focus-task-item .edit-end-time {
+    padding: 2px 5px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    font-size: 0.9em;
+    background-color: var(--card-background);
+    color: var(--text-color);
+}
+
+.focus-task-item .task-title,
+.focus-task-item .time-text {
+    cursor: pointer;
+}
+
+.focus-task-item .task-title:hover,
+.focus-task-item .time-text:hover {
+    color: var(--primary-color);
+}
+
+body.dark-mode .focus-task-item .edit-title,
+body.dark-mode .focus-task-item .edit-start-time,
+body.dark-mode .focus-task-item .edit-end-time {
+    background-color: #2c2c2c;
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+.task-title.completed {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.task-checkbox {
+    cursor: not-allowed;
+}
+
+.task-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.task-checkbox {
+    cursor: not-allowed;
+    margin: 0;
+}
+
+.focus-task-item .task-title.completed {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.focus-task-item .delete-focus-task {
+    padding: 0 5px;
+    margin: 0;
 }
