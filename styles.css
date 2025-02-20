@@ -977,3 +977,13 @@ section {
 .timer-display .extend-time-container button:active {
     transform: scale(0.98);
 }
+
+.focus-task-item.running {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4CAF50;
+}
+
+.focus-task-item.running .task-title {
+    color: #4CAF50;
+    font-weight: bold;
+}

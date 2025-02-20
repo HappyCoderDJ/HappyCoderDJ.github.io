@@ -642,6 +642,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         startTimerBtn.disabled = true;
         pauseTimerBtn.disabled = false;
+
+        // 집중작업 이력 업데이트
+        renderFocusTasks();
     }
 
     // 새로운 함수 추가 (startTimer 함수 뒤에)
@@ -774,13 +777,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // 현재 날짜의 작업만 표시
         const tasksForDate = focusTasks[currentDate] || [];
         
-        if (tasksForDate.length === 0) {
+        // 진행 중인 타이머가 있고, 해당 날짜에 속하는 경우 추가
+        const now = new Date();
+        const currentTaskDate = new Date(now.getTime() + (9 * 60 * 60 * 1000)).toISOString().split('T')[0];
+        
+        let allTasks = [...tasksForDate];
+        
+        if (timerStatus.isRunning && currentDate === currentTaskDate) {
+            const runningTask = {
+                title: timerStatus.focusTitle,
+                startTime: timerStatus.startTime,
+                duration: timerStatus.focusDuration,
+                completed: false,
+                isRunning: true // 실행 중임을 표시하는 플래그 추가
+            };
+            allTasks.unshift(runningTask);
+        }
+
+        if (allTasks.length === 0) {
             return;
         }
 
-        tasksForDate.forEach((task, index) => {
+        allTasks.forEach((task, index) => {
             const li = document.createElement('li');
             li.className = 'focus-task-item';
+            if (task.isRunning) {
+                li.classList.add('running'); // 실행 중인 작업 스타일링을 위한 클래스 추가
+            }
             
             const startTimeStr = task.startTime ? new Date(task.startTime).toLocaleTimeString('ko-KR', {
                 hour: '2-digit',
@@ -794,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             li.innerHTML = `
                 <div class="task-info">
-                    <span class="task-title">${task.title}</span>
+                    <span class="task-title">${task.title}${task.isRunning ? ' (진행 중)' : ''}</span>
                     <span class="task-time-info">
                         <span class="task-duration">${task.duration}분</span>
                         <span class="separator">·</span>
@@ -802,7 +825,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ${endTimeStr ? `<span class="separator">-</span><span class="task-time">${endTimeStr}</span>` : ''}
                     </span>
                 </div>
-                <button class="delete-task">×</button>
+                ${!task.isRunning ? '<button class="delete-task">×</button>' : ''}
             `;
             
             focusTasksList.appendChild(li);
