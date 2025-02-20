@@ -110,9 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="checkbox" id="${task.id}" ${task.checked ? 'checked' : ''}>
             <span class="task-text ${task.checked ? 'checked' : ''}" data-id="${task.id}">${task.text}</span>
             <input type="text" class="edit-task" data-id="${task.id}" value="${task.text}">
-            <button class="start-task-timer" data-id="${task.id}" title="이 작업으로 타이머 시작">
-                ⏰
-            </button>
+            ${!task.checked ? `
+                <button class="start-task-timer" data-id="${task.id}" title="이 작업으로 타이머 시작">
+                    ⏰
+                </button>
+            ` : ''}
             <button class="delete-task" data-id="${task.id}">×</button>
         `;
         return li;
@@ -734,24 +736,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const extendMinutes = parseInt(document.getElementById('extend-time').value) || 0;
         if (extendMinutes <= 0) return;
 
-        // 전체 시간 업데이트
+        // 전체 타이머 시간 업데이트
+        timerStatus.totalDuration += extendMinutes * 60;
         timerStatus.focusDuration += extendMinutes;
+        
+        // 현재 경과 시간은 유지한 채로 남은 시간만 연장
         remainingTime += extendMinutes * 60;
         
-        // 원형 타이머 업데이트
-        const timerProgress = document.querySelector('.timer-progress');
-        const circumference = 2 * Math.PI * 45;
-        const totalTime = timerStatus.focusDuration * 60;
-        const progress = remainingTime / totalTime;
-        const offset = circumference * (1 - progress);
-        
-        timerProgress.style.strokeDasharray = `${circumference} ${circumference}`;
-        timerProgress.style.strokeDashoffset = offset;
+        // 타이머가 실행 중이 아니면 다시 시작
+        if (!timerInterval) {
+            startTimerInterval();
+        }
 
-        // 타이머 상태 저장
-        timerStatus.remainingTime = remainingTime;
-        saveTimerStatus();
+        // 원형 타이머 업데이트
         updateTimerDisplay();
+        
+        // 타이머 상태 저장
+        saveTimerStatus();
+        
+        // 진행 중인 작업 목록 업데이트를 위해 renderFocusTasks 호출
+        renderFocusTasks();
         
         // 입력 필드 초기화
         document.getElementById('extend-time').value = '';
@@ -817,9 +821,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const runningTask = {
                 title: timerStatus.focusTitle,
                 startTime: timerStatus.startTime,
-                duration: timerStatus.focusDuration,
+                duration: timerStatus.focusDuration, // focusDuration 사용하여 총 시간 표시
                 completed: false,
-                isRunning: true // 실행 중임을 표시하는 플래그 추가
+                isRunning: true
             };
             allTasks.unshift(runningTask);
         }
