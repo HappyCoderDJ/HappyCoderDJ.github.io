@@ -23,11 +23,12 @@ document.addEventListener('DOMContentLoaded', function() {
     let dailyTasks = {};
     let timerInterval = null;
     let remainingTime = 0;
-    let focusTasks = []; // [{title, startTime, endTime, completed, duration}]
+    let focusTasks = {}; // { '2024-03-21': [{title, startTime, endTime, completed, duration}], ... }
     let timerStatus = {
         isRunning: false,
-        startTime: null,
-        remainingTime: 0,
+        startTime: null,      // 타이머 시작 시간 (ISO string)
+        totalDuration: 0,     // 전체 타이머 시간 (초)
+        elapsedTime: 0,       // 이미 경과한 시간 (초)
         focusTitle: '',
         focusDuration: 0
     };
@@ -152,13 +153,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // 날짜 변경 함수
+    // 날짜 변경 함수 수정
     function changeDate(offset) {
         const date = new Date(currentDate);
         date.setDate(date.getDate() + offset);
         currentDate = date.toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
+        // 집중작업 목록도 함께 업데이트
+        renderFocusTasks();
     }
 
     // 날짜 포맷 함수
@@ -394,12 +397,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // 오늘 버튼 요소 선택
     const todayDateBtn = document.getElementById('today-date');
 
-    // 오늘 날짜로 이동하는 함수 (서울 표준시 기준)
+    // 오늘 날짜로 이동하는 함수도 수정 (서울 표준시 기준)
     function goToToday() {
         const now = new Date(new Date().getTime() + (9 * 60 * 60 * 1000));
         currentDate = now.toISOString().split('T')[0];
         currentDateSpan.textContent = formatDate(currentDate);
         renderTasks(currentDate);
+        // 집중작업 목록도 함께 업데이트
+        renderFocusTasks();
     }
 
     // 오늘 버튼 클릭 이벤트 리스너
@@ -620,31 +625,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (!isRestoring) {
-            remainingTime = focusTime * 60;
+            const now = new Date();
             timerStatus = {
                 isRunning: true,
-                startTime: new Date().getTime(),
-                remainingTime: remainingTime,
+                startTime: now.toISOString(),
+                totalDuration: focusTime * 60,
+                elapsedTime: 0,
                 focusTitle: focusTitle,
                 focusDuration: focusTime
             };
         }
 
         updateTimerDisplay();
-        
+        startTimerInterval();
+        saveTimerStatus();
+
+        startTimerBtn.disabled = true;
+        pauseTimerBtn.disabled = false;
+    }
+
+    // 새로운 함수 추가 (startTimer 함수 뒤에)
+    function startTimerInterval() {
         timerInterval = setInterval(() => {
-            if (remainingTime > 0) {
-                remainingTime--;
-                updateTimerDisplay();
-                timerStatus.remainingTime = remainingTime;
-                saveTimerStatus();
-            } else {
+            if (!timerStatus.isRunning) return;
+
+            const now = new Date();
+            const start = new Date(timerStatus.startTime);
+            const totalElapsed = Math.floor((now - start) / 1000);
+            
+            // 경과 시간이 총 시간을 초과하지 않도록 함
+            timerStatus.elapsedTime = Math.min(totalElapsed, timerStatus.totalDuration);
+            remainingTime = timerStatus.totalDuration - timerStatus.elapsedTime;
+
+            if (remainingTime <= 0) {
                 completeTimer();
+            } else {
+                updateTimerDisplay();
+                saveTimerStatus();
             }
         }, 1000);
-
-        startTimerBtn.disabled = false;
-        pauseTimerBtn.disabled = false;
     }
 
     function pauseTimer() {
@@ -654,21 +673,25 @@ document.addEventListener('DOMContentLoaded', function() {
             timerStatus.isRunning = false;
             saveTimerStatus();
             
-            // 현재 진행 중인 작업의 상태 업데이트
-            if (focusTasks.length > 0) {
-                const currentTask = focusTasks[0];
-                if (!currentTask.endTime) {  // endTime이 없는 경우에만 업데이트
-                    currentTask.endTime = new Date().toISOString();
-                    // 실제 진행된 시간 계산 (분 단위)
-                    const startTime = new Date(currentTask.startTime);
-                    const endTime = new Date(currentTask.endTime);
-                    currentTask.duration = Math.round((endTime - startTime) / (1000 * 60));
-                    saveFocusTasks();
-                    renderFocusTasks();
-                }
-            }
+            const now = new Date();
+            const endDate = new Date(now.getTime() + (9 * 60 * 60 * 1000)).toISOString().split('T')[0];
             
-            // 타이머 일시정지 시 버튼 상태 변경
+            if (!focusTasks[endDate]) {
+                focusTasks[endDate] = [];
+            }
+
+            const newTask = {
+                title: timerStatus.focusTitle,
+                startTime: timerStatus.startTime,
+                endTime: now.toISOString(),
+                completed: false,
+                duration: Math.round((now - new Date(timerStatus.startTime)) / (1000 * 60))
+            };
+            
+            focusTasks[endDate].unshift(newTask);
+            saveFocusTasks();
+            renderFocusTasks();
+            
             startTimerBtn.disabled = false;
             pauseTimerBtn.disabled = true;
         }
@@ -707,19 +730,25 @@ document.addEventListener('DOMContentLoaded', function() {
         timerStatus.isRunning = false;
         saveTimerStatus();
         
-        if (focusTasks.length > 0) {
-            const currentTask = focusTasks[0];
-            currentTask.completed = true;
-            currentTask.endTime = new Date().toISOString();
-            // 실제 진행된 시간 계산
-            const startTime = new Date(currentTask.startTime);
-            const endTime = new Date(currentTask.endTime);
-            currentTask.duration = Math.round((endTime - startTime) / (1000 * 60));
-            saveFocusTasks();
-            renderFocusTasks();
+        const now = new Date();
+        const endDate = new Date(now.getTime() + (9 * 60 * 60 * 1000)).toISOString().split('T')[0];
+        
+        if (!focusTasks[endDate]) {
+            focusTasks[endDate] = [];
         }
         
-        // 타이머 완료 시 버튼 상태 초기화
+        const newTask = {
+            title: timerStatus.focusTitle,
+            startTime: timerStatus.startTime,
+            endTime: now.toISOString(),
+            completed: true,
+            duration: timerStatus.focusDuration
+        };
+        
+        focusTasks[endDate].unshift(newTask);
+        saveFocusTasks();
+        renderFocusTasks();
+        
         startTimerBtn.disabled = false;
         pauseTimerBtn.disabled = true;
         
@@ -741,7 +770,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderFocusTasks() {
         focusTasksList.innerHTML = '';
-        focusTasks.forEach((task, index) => {
+        
+        // 현재 날짜의 작업만 표시
+        const tasksForDate = focusTasks[currentDate] || [];
+        
+        if (tasksForDate.length === 0) {
+            return;
+        }
+
+        tasksForDate.forEach((task, index) => {
             const li = document.createElement('li');
             li.className = 'focus-task-item';
             
@@ -786,7 +823,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const index = Array.from(focusTasksList.children).indexOf(taskItem);
             
             if (confirm('이 작업을 삭제하시겠습니까?')) {
-                focusTasks.splice(index, 1);
+                const taskTitle = taskItem.querySelector('.task-title').textContent;
+                const endDate = new Date(currentDate).toISOString().split('T')[0];
+                focusTasks[endDate] = focusTasks[endDate].filter(task => task.title !== taskTitle);
                 saveFocusTasks();
                 renderFocusTasks();
             }
@@ -801,7 +840,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const taskItem = e.target.closest('.focus-task-item');
             const index = parseInt(taskItem.querySelector('.task-title').dataset.index);
-            const task = focusTasks[index];
+            const task = focusTasks[currentDate][index];
 
             if (e.target.classList.contains('edit-title')) {
                 task.title = e.target.value;
@@ -854,7 +893,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 duration: 0,
                 completed: false
             };
-            focusTasks.unshift(newTask); // 배열 앞쪽에 추가
+            if (!focusTasks[currentDate]) {
+                focusTasks[currentDate] = [];
+            }
+            focusTasks[currentDate].unshift(newTask);
             newFocusTaskInput.value = '';
             renderFocusTasks();
             saveFocusTasks();
@@ -875,31 +917,38 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedStatus = localStorage.getItem('timerStatus');
         if (savedStatus) {
             const status = JSON.parse(savedStatus);
-            const now = new Date().getTime();
             
-            if (status.isRunning && status.originalStartTime) {
-                // 원래 시작 시간부터 얼마나 지났는지 계산
-                const totalTimePassed = Math.floor((now - status.originalStartTime) / 1000);
-                const totalTime = status.focusDuration * 60;
+            if (status.isRunning && status.startTime) {
+                const now = new Date();
+                const start = new Date(status.startTime);
+                const totalElapsed = Math.floor((now - start) / 1000);
                 
-                // 남은 시간 계산
-                const newRemainingTime = totalTime - totalTimePassed;
+                // 총 시간을 초과하지 않는 범위에서 경과 시간 계산
+                const newElapsedTime = Math.min(totalElapsed, status.totalDuration);
                 
-                if (newRemainingTime > 0) {
+                if (newElapsedTime < status.totalDuration) {
                     timerStatus = {
                         ...status,
-                        startTime: status.originalStartTime,
-                        remainingTime: newRemainingTime
+                        elapsedTime: newElapsedTime
                     };
-                    remainingTime = newRemainingTime;
+                    remainingTime = status.totalDuration - newElapsedTime;
+                    
                     document.getElementById('focus-title').value = status.focusTitle;
                     document.getElementById('focus-time').value = status.focusDuration;
                     startTimer(true);
                 } else {
-                    // 타이머가 이미 완료된 경우
+                    // 이미 시간이 완료된 경우
                     completeTimer();
                 }
             }
         }
+    }
+
+    // 초기화 시에는 타이머 상태가 있는 경우에만 값을 설정
+    const savedStatus = localStorage.getItem('timerStatus');
+    if (!savedStatus) {
+        // 타이머 상태가 없을 때만 초기값 설정
+        selectedTimeInput.value = "30";
+        focusTimeInput.value = "30";
     }
 });
