@@ -110,6 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
             <input type="checkbox" id="${task.id}" ${task.checked ? 'checked' : ''}>
             <span class="task-text ${task.checked ? 'checked' : ''}" data-id="${task.id}">${task.text}</span>
             <input type="text" class="edit-task" data-id="${task.id}" value="${task.text}">
+            <button class="start-task-timer" data-id="${task.id}" title="이 작업으로 타이머 시작">
+                ⏰
+            </button>
             <button class="delete-task" data-id="${task.id}">×</button>
         `;
         return li;
@@ -385,9 +388,36 @@ document.addEventListener('DOMContentLoaded', function() {
         prevDateBtn.addEventListener('click', () => changeDate(-1));
         // 다음 날짜 버튼
         nextDateBtn.addEventListener('click', () => changeDate(1));
+
+        // 타이머 시작 버튼 클릭 이벤트 처리
+        taskList.addEventListener('click', function(event) {
+            const timerBtn = event.target.closest('.start-task-timer');
+            if (timerBtn) {
+                const taskId = timerBtn.dataset.id;
+                const task = dailyTasks[currentDate].find(t => t.id === taskId);
+                
+                if (timerInterval) {
+                    alert('이미 진행 중인 타이머가 있습니다. 현재 타이머를 중단하고 새로운 작업을 시작하려면 먼저 타이머를 중단해주세요.');
+                    return;
+                }
+
+                if (task) {
+                    // 타이머 입력 필드들 설정
+                    document.getElementById('focus-title').value = task.text;
+                    document.getElementById('focus-time').value = "30";
+                    document.getElementById('selected-time-input').value = "30";
+                    
+                    // 타이머 시작
+                    startTimer();
+                    
+                    // 타이머 섹션으로 스크롤
+                    document.getElementById('focus-section').scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
     }
 
-    // 초기화
+    // 초기화 실행
     initialize();
 
     // 페이지 로드 시 현재 날짜 표시
