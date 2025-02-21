@@ -42,18 +42,19 @@
                     <input type="text" id="new-task" placeholder="새로운 할 일 입력">
                     <button id="add-task-btn">추가</button>
                 </div>
+                
+                <div class="progress-section">
+                    <h3>임무 완수율</h3>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 0%;">0%</div>
+                    </div>
+                </div>
+
                 <div class="task-actions">
                     <button id="download-tasks">목록 다운로드</button>
                     <input type="file" id="upload-tasks" accept=".json" style="display: none;">
                     <button id="upload-tasks-btn">목록 업로드</button>
                     <button id="copy-url-btn">URL 복사하기</button>
-                </div>
-            </section>
-
-            <section class="card" id="progress">
-                <h2>임무 완수율</h2>
-                <div class="progress-bar">
-                    <div class="progress" style="width: 0%;">0%</div>
                 </div>
             </section>
 
